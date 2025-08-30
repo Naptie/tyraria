@@ -2,25 +2,22 @@
   import { onMount, onDestroy } from 'svelte';
   import { writable } from 'svelte/store';
   
-  import * as vscode from 'vscode';
-  import { LogLevel } from '@codingame/monaco-vscode-api';
-  import { MonacoEditorLanguageClientWrapper } from 'monaco-editor-wrapper';
-  import { configureDefaultWorkerFactory } from 'monaco-editor-wrapper/workers/workerLoaders';
-  
-  import '@codingame/monaco-vscode-theme-defaults-default-extension';
-  import {
-    Parts,
-    attachPart,
-    onDidChangeSideBarPosition,
-  } from '@codingame/monaco-vscode-views-service-override';
-  import getKeybindingsServiceOverride from '@codingame/monaco-vscode-keybindings-service-override';
-  import getMarkersServiceOverride from '@codingame/monaco-vscode-markers-service-override';
-  import getExplorerServiceOverride from '@codingame/monaco-vscode-explorer-service-override';
+  // These will be dynamically imported in onMount to avoid SSR issues
+  let vscode;
+  let LogLevel;
+  let MonacoEditorLanguageClientWrapper;
+  let configureDefaultWorkerFactory;
+  let Parts, attachPart, onDidChangeSideBarPosition;
+  let getKeybindingsServiceOverride;
+  let getMarkersServiceOverride;
+  let getExplorerServiceOverride;
+  let createFileSystemProvider;
+  let TinymistLS;
+  let AutoSaveConfiguration;
   
   import tinymistPackage from '../assets/tinymist-assets/package.json';
   import TypstPreview from './TypstPreview.svelte';
   import LoadingScreen from './LoadingScreen.svelte';
-  import { createFileSystemProvider } from '../fs-provider/fs-provider.mts';
   import {
     defaultEntryFilePath,
     defaultWorkspacePath,
@@ -30,9 +27,7 @@
     defaultWorkspaceUri,
   } from '../fs-provider/uri-constants.mjs';
   import resourceLoader from '../resource-loader.mjs';
-  import { TinymistLS } from '../tinymist-ls/ls.mts';
   import { uploadWorkspace, exportWorkspaceAsJSON } from './workspace.js';
-  import { AutoSaveConfiguration } from '@codingame/monaco-vscode-api/vscode/vs/platform/files/common/files';
   import { resolve } from 'pathe';
 
   // Component props
@@ -348,13 +343,58 @@
     window.addEventListener('resize', checkMobile);
     window.addEventListener('beforeunload', handleBeforeUnload);
     
-    // Initialize the editor
-    worker = new TinymistLS();
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    
     try {
+      // Dynamic imports to avoid SSR issues
+      const [
+        vscodeMod,
+        { LogLevel: LogLevelMod },
+        { MonacoEditorLanguageClientWrapper: WrapperMod },
+        { configureDefaultWorkerFactory: WorkerFactoryMod },
+        viewsMod,
+        keybindingsMod,
+        markersMod,
+        explorerMod,
+        { createFileSystemProvider: FsProviderMod },
+        { TinymistLS: TinymistLSMod },
+        { AutoSaveConfiguration: AutoSaveMod }
+      ] = await Promise.all([
+        import('vscode'),
+        import('@codingame/monaco-vscode-api'),
+        import('monaco-editor-wrapper'),
+        import('monaco-editor-wrapper/workers/workerLoaders'),
+        import('@codingame/monaco-vscode-views-service-override'),
+        import('@codingame/monaco-vscode-keybindings-service-override'),
+        import('@codingame/monaco-vscode-markers-service-override'),
+        import('@codingame/monaco-vscode-explorer-service-override'),
+        import('../fs-provider/fs-provider.mts'),
+        import('../tinymist-ls/ls.mts'),
+        import('@codingame/monaco-vscode-api/vscode/vs/platform/files/common/files')
+      ]);
+      
+      // Import the theme extension
+      await import('@codingame/monaco-vscode-theme-defaults-default-extension');
+      
+      // Assign the imported modules
+      vscode = vscodeMod;
+      LogLevel = LogLevelMod;
+      MonacoEditorLanguageClientWrapper = WrapperMod;
+      configureDefaultWorkerFactory = WorkerFactoryMod;
+      Parts = viewsMod.Parts;
+      attachPart = viewsMod.attachPart;
+      onDidChangeSideBarPosition = viewsMod.onDidChangeSideBarPosition;
+      getKeybindingsServiceOverride = keybindingsMod.default;
+      getMarkersServiceOverride = markersMod.default;
+      getExplorerServiceOverride = explorerMod.default;
+      createFileSystemProvider = FsProviderMod;
+      TinymistLS = TinymistLSMod;
+      AutoSaveConfiguration = AutoSaveMod;
+      
+      // Initialize the editor
+      worker = new TinymistLS();
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      
       await resourceLoader.loadAll(worker, code);
       await startTinymistClient();
       resourcesLoaded.set(true);

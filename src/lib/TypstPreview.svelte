@@ -1,13 +1,11 @@
 <script>
   import { onMount } from 'svelte';
-  import {
-    BrowserMessageReader,
-    BrowserMessageWriter,
-  } from 'vscode-languageclient/browser';
-  
-  import * as vscode from 'vscode';
   import { normalize } from 'pathe';
   import { usePreviewComponent } from '../typst-preview/preview.mts';
+
+  // These will be dynamically imported in onMount to avoid SSR issues
+  let BrowserMessageReader, BrowserMessageWriter;
+  let vscode;
 
   export let reader;
   export let writer;
@@ -31,6 +29,21 @@
   }
 
   async function initPreview(path) {
+    // Dynamic imports to avoid SSR issues
+    if (!vscode) {
+      const [
+        vscodeMod,
+        { BrowserMessageReader: ReaderMod, BrowserMessageWriter: WriterMod }
+      ] = await Promise.all([
+        import('vscode'),
+        import('vscode-languageclient/browser')
+      ]);
+      
+      vscode = vscodeMod;
+      BrowserMessageReader = ReaderMod;
+      BrowserMessageWriter = WriterMod;
+    }
+
     const { initPreviewInner } = usePreviewComponent(
       reader,
       writer,
