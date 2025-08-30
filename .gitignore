@@ -2,3 +2,10 @@ dist
 node_modules
 
 src/assets/extra_fonts
+
+# SvelteKit
+.svelte-kit/
+build/
+
+# Logs
+*.log
