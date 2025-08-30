@@ -1,6 +1,7 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { writable } from 'svelte/store';
+  import Icon from '@iconify/svelte';
   
   import * as vscode from 'vscode';
   import { LogLevel } from '@codingame/monaco-vscode-api';
@@ -396,7 +397,7 @@
             title="Toggle explorer"
             on:click={toggleSidebar}
           >
-            📁
+            <Icon icon="heroicons:archive-box" class="menu-btn-icon" />
           </button>
         {/if}
         <button
@@ -404,7 +405,7 @@
           title="Empty workspace"
           on:click={handleEmptyClicked}
         >
-          🗑️
+          <Icon icon="heroicons:trash" class="menu-btn-icon" />
         </button>
       </div>
       
@@ -418,7 +419,7 @@
           on:click={handleShareClicked}
         >
           {#if !$shareButtonText}
-            📤
+            <Icon icon="heroicons:share" class="menu-btn-icon" />
           {:else}
             <span class="mx-3 my-1">{$shareButtonText}</span>
           {/if}

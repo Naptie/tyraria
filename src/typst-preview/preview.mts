@@ -43,7 +43,10 @@ import {
   sendWebSocketMessage,
   isTypstPreviewMessage,
 } from "./utils.mts";
-import { Ref } from "vue";
+// Vue Ref type shim for Svelte compatibility
+interface Ref<T> {
+  value: T;
+}
 import {
   StrategyKey,
   StrategyMap,
@@ -65,8 +68,6 @@ export function usePreviewComponent(
   let rootElem: TypstPreviewDocumentRootElement | null = null;
 
   const subsribes: Subscription[] = [];
-
-  let _disposed = false;
 
   function createSvgDocument(kModule: RenderSession) {
     if (hookedElem.value.firstElementChild?.tagName !== "svg") {
@@ -237,7 +238,7 @@ export function usePreviewComponent(
     hookedElem.value.document = svgDoc!;
 
     const dispose = () => {
-      _disposed = true;
+      // Disposed flag removed as it was unused
       svgDoc?.dispose();
 
       for (const sub of subsribes.splice(0, subsribes.length)) {

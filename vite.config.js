@@ -10,11 +10,6 @@ import { constants } from "zlib";
 
 export default defineConfig({
   base: process.env.BUILD_PATH || "/",
-  root: 'src',
-  build: {
-    outDir: '../dist',
-    emptyOutDir: true,
-  },
   plugins: [
     sveltekit(),
     assetsLoader(),

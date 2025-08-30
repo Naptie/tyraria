@@ -1,4 +1,5 @@
-import workerUrl from "./ls-worker.mjs?worker&url";
+// import workerUrl from "./ls-worker.mjs?worker&url";
+const workerUrl = null; // TODO: Fix worker import
 import {
   BrowserMessageReader,
   BrowserMessageWriter,
@@ -21,6 +22,9 @@ export class TinymistLS {
   private packagePromiseCache = new Map<string, Promise<void>>();
   constructor() {}
   async startWorker() {
+    if (workerUrl === null) {
+      throw new Error("Tinymist worker is not available yet");
+    }
     this.worker = new Worker(workerUrl, {
       type: "module",
       name: "Tinymist LS",
@@ -79,7 +83,7 @@ export class TinymistLS {
     this.writer = new BrowserMessageWriter(this.worker);
     this.reader.listen((message) => {
       if ("method" in message && message.method == "tmLog") {
-        console.log("[Tinymist WASM Log]", message.params.data);
+        console.log("[Tinymist WASM Log]", (message as any).params?.data);
         return;
       }
       console.log("LSP -> Editor:", message);
