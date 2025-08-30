@@ -1,7 +1,6 @@
 import { fileURLToPath, URL } from "node:url";
+import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
-import vueDevTools from "vite-plugin-vue-devtools";
 import importMetaUrlPlugin from "@codingame/esbuild-import-meta-url-plugin";
 import { assetsLoader } from "./utils/load-assets.mjs";
 import tailwindcss from "@tailwindcss/vite";
@@ -11,9 +10,13 @@ import { constants } from "zlib";
 
 export default defineConfig({
   base: process.env.BUILD_PATH || "/",
+  root: 'src',
+  build: {
+    outDir: '../dist',
+    emptyOutDir: true,
+  },
   plugins: [
-    vue(),
-    vueDevTools(),
+    sveltekit(),
     assetsLoader(),
     tailwindcss(),
     compression({
