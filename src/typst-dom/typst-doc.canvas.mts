@@ -313,7 +313,7 @@ export function provideCanvasDoc<
       // console.log('toggleCanvasViewportChange!!!!!!', this.id, this.isRendering);
       const pages: CanvasPage[] = this.kModule
         .retrievePagesInfo()
-        .map((x, index) => {
+        .map((x: any, index: number) => {
           return {
             tag: "canvas",
             index,

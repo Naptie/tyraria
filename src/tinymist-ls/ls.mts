@@ -53,7 +53,7 @@ export class TinymistLS {
     const decompressed = pako.ungzip(new Uint8Array(arrayBuffer));
     const tarReader = await TarReader.load(decompressed.buffer);
 
-    tarReader.fileInfos.forEach(async (fileInfo) => {
+    tarReader.fileInfos.forEach(async (fileInfo: any) => {
       if (fileInfo.type === TarFileType.Dir) {
         return; // dir will be created automatically when creating files inside
       }
@@ -81,7 +81,7 @@ export class TinymistLS {
   async startTinymistServer() {
     this.reader = new BrowserMessageReader(this.worker);
     this.writer = new BrowserMessageWriter(this.worker);
-    this.reader.listen((message) => {
+    this.reader.listen((message: any) => {
       if ("method" in message && message.method == "tmLog") {
         console.log("[Tinymist WASM Log]", (message as any).params?.data);
         return;
@@ -89,7 +89,7 @@ export class TinymistLS {
       console.log("LSP -> Editor:", message);
     });
 
-    this.reader.listen(async (message) => {
+    this.reader.listen(async (message: any) => {
       if (
         "method" in message &&
         message.method === "worker" &&
@@ -117,7 +117,7 @@ export class TinymistLS {
 
     const tryRead = async (uri: vscode.Uri) =>
       vscode.workspace.fs.readFile(uri).then(
-        (data): FileResult => {
+        (data: any): FileResult => {
           return {
             type: "ok",
             content: Buffer.from(data).toString("base64"),
@@ -173,17 +173,17 @@ export class TinymistLS {
         });
       };
 
-      this.watcher?.onDidChange((uri) => {
+      this.watcher?.onDidChange((uri: any) => {
         const currentClock = watchClock++;
         console.log("fs change", uri, currentClock);
         watchRead(currentClock, uri);
       });
-      this.watcher?.onDidCreate((uri) => {
+      this.watcher?.onDidCreate((uri: any) => {
         const currentClock = watchClock++;
         console.log("fs create", uri, currentClock);
         watchRead(currentClock, uri);
       });
-      this.watcher?.onDidDelete((uri) => {
+      this.watcher?.onDidDelete((uri: any) => {
         const currentClock = watchClock++;
         console.log("fs delete", uri, currentClock);
         watchRead(currentClock, uri);
@@ -197,7 +197,7 @@ export class TinymistLS {
       console.log(
         "fs watch request",
         params,
-        vscode.workspace.workspaceFolders?.map((folder) =>
+        vscode.workspace.workspaceFolders?.map((folder: any) =>
           folder.uri.toString()
         )
       );

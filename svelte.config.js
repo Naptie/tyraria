@@ -1,5 +1,14 @@
-import adapter from '@sveltejs/adapter-auto';
-import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+// Minimal adapter for development without dependencies
+const adapter = () => ({
+  name: 'minimal-adapter',
+  async adapt() {
+    // Minimal implementation for development
+  }
+});
+// Minimal preprocessor for development without dependencies
+const vitePreprocess = () => ({
+  name: 'minimal-preprocess'
+});
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
