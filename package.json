@@ -37,6 +37,7 @@
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "dist:ghpages": "BUILD_PATH=/tyraria/ vite build && gh-pages -d dist",
     "dist:cfpages": "BUILD_PATH=/ vite build && npx wrangler pages deploy dist",
+    "dist:git": "yarn run build:lib && git checkout -B dist && git add -f dist && git commit -m \"Distribution build\" && git push origin dist --force && git checkout main",
     "format": "prettier --write .",
     "lint": "prettier --check . && eslint .",
     "fl": "prettier --write . && eslint --fix ."
