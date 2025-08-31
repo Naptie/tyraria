@@ -273,6 +273,12 @@
   }
 
   const viewsInit = async () => {
+    console.log("Initializing views with DOM elements:", {
+      sidebarContainer: !!sidebarContainer,
+      editorsContainer: !!editorsContainer,
+      panelContainer: !!panelContainer
+    });
+
     for (const config of [
       {
         part: Parts.SIDEBAR_PART,
@@ -284,11 +290,15 @@
       { part: Parts.EDITOR_PART, element: editorsContainer },
       { part: Parts.PANEL_PART, element: panelContainer },
     ]) {
-      attachPart(config.part, config.element);
-
-      config.onDidElementChange?.(() => {
+      if (config.element) {
         attachPart(config.part, config.element);
-      });
+
+        config.onDidElementChange?.(() => {
+          attachPart(config.part, config.element);
+        });
+      } else {
+        console.error(`Element for part ${config.part} is null`);
+      }
     }
   };
 
@@ -372,6 +382,24 @@
     }
   }
 
+  // Reactive statement to initialize Monaco Editor after DOM elements are ready
+  $effect(() => {
+    if (resourcesLoaded && sidebarContainer && editorsContainer && panelContainer && !wrapper) {
+      // DOM is ready, initialize Monaco Editor
+      initializeMonacoEditor();
+    }
+  });
+
+  async function initializeMonacoEditor() {
+    try {
+      console.log("Initializing Monaco Editor...");
+      await startTinymistClient();
+      console.log("Monaco Editor initialized successfully");
+    } catch (error) {
+      console.error("Failed to initialize Monaco Editor:", error);
+    }
+  }
+
   onMount(async () => {
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -425,7 +453,7 @@
       TinymistLS = TinymistLSMod;
       AutoSaveConfiguration = AutoSaveMod;
 
-      // Initialize the editor
+      // Initialize the worker
       worker = new TinymistLS();
       worker.startWorker();
 
@@ -435,11 +463,11 @@
       console.log(12);
       await resourceLoader.loadAll(worker, code);
       console.log(13);
-      await startTinymistClient();
-      console.log(14);
+      
+      // Set resourcesLoaded to true to trigger DOM rendering
       resourcesLoaded = true;
 
-      console.log("TyrariaEditor initialized successfully");
+      console.log("TyrariaEditor initialization phase 1 complete");
     } catch (error) {
       console.error("Failed to initialize:", error);
     }
