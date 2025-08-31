@@ -18,6 +18,7 @@
   import TypstPreview from "./TypstPreview.svelte";
   import LoadingScreen from "./LoadingScreen.svelte";
   import { Buffer } from "buffer";
+  import { HSplitPane, VSplitPane } from "svelte-split-pane";
   import {
     defaultEntryFilePath,
     defaultWorkspacePath,
@@ -531,39 +532,44 @@
       </div>
     </div>
 
-    <div class="flex-1 min-h-0 flex">
-      <!-- Sidebar -->
-      {#if isSidebarOpen}
-        <div class="w-1/5 min-w-0 border-r border-gray-600">
+    <div class="flex-1 min-h-0">
+      <HSplitPane leftPanelSize={isSidebarOpen ? "20%" : "0%"} rightPanelSize={isSidebarOpen ? "80%" : "100%"}>
+        <!-- Sidebar -->
+        <div slot="left" class="h-full {isSidebarOpen ? 'border-r border-gray-600' : 'hidden'}">
           <div bind:this={sidebarContainer} class="h-full"></div>
         </div>
-      {/if}
 
-      <!-- Main content area -->
-      <div class="flex-1 flex">
-        <!-- Left side: Editor area -->
-        <div class="w-3/5 flex flex-col">
-          <div class="flex-1">
-            <div bind:this={editorsContainer} class="h-full"></div>
-          </div>
-          {#if !isMobile}
-            <div class="h-1/3 border-t border-gray-600">
-              <div bind:this={panelContainer} class="h-full"></div>
+        <!-- Main content area -->
+        <div slot="right" class="h-full">
+          <HSplitPane leftPanelSize="60%" rightPanelSize="40%">
+            <!-- Left side: Editor and Panel area -->
+            <div slot="left" class="h-full">
+              <VSplitPane topPanelSize={isMobile ? "100%" : "70%"} downPanelSize={isMobile ? "0%" : "30%"}>
+                <!-- Editor area -->
+                <div slot="top" class="h-full">
+                  <div bind:this={editorsContainer} class="h-full"></div>
+                </div>
+                
+                <!-- Panel area (bottom) -->
+                <div slot="down" class="h-full {isMobile ? 'hidden' : 'border-t border-gray-600'}">
+                  <div bind:this={panelContainer} class="h-full"></div>
+                </div>
+              </VSplitPane>
             </div>
-          {/if}
-        </div>
 
-        <!-- Right side: Typst preview -->
-        <div class="w-2/5 border-l border-gray-600">
-          <TypstPreview
-            class="bg-base"
-            bind:this={preview}
-            {reader}
-            {writer}
-            style="margin-top: -1px"
-          />
+            <!-- Right side: Typst preview -->
+            <div slot="right" class="border-l border-gray-600 h-full">
+              <TypstPreview
+                class="bg-base"
+                bind:this={preview}
+                {reader}
+                {writer}
+                style="margin-top: -1px"
+              />
+            </div>
+          </HSplitPane>
         </div>
-      </div>
+      </HSplitPane>
     </div>
   </div>
 {/if}
@@ -576,5 +582,19 @@
 
   :global(.bg-base) {
     background: var(--vscode-sideBar-background);
+  }
+
+  /* Custom styling for svelte-split-pane separators */
+  :global(.separator) {
+    background-color: var(--vscode-panel-border) !important;
+    transition: background-color 0.3s ease;
+  }
+
+  :global(.separator:hover) {
+    background-color: rgba(0, 120, 212, 0.6) !important;
+  }
+
+  :global(.separator:active) {
+    background-color: rgb(0, 120, 212) !important;
   }
 </style>
