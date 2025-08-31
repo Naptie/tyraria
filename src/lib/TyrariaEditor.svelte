@@ -2,7 +2,7 @@
   import { resolve } from "pathe";
 
   import Icon from "@iconify/svelte";
-  import Splitpanes, { Pane } from "svelte-splitpanes";
+  import { Splitpanes, Pane } from "svelte-splitpanes";
 
   import * as vscode from "vscode";
   import { LogLevel } from "@codingame/monaco-vscode-api";

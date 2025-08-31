@@ -4,7 +4,7 @@ import {
   BrowserMessageWriter,
 } from "vscode-languageserver/browser";
 import { InitializeRequest } from "vscode-languageserver";
-import init, { TinymistLanguageServer } from "tinymist";
+import init, { TinymistLanguageServer } from "tinymist-web";
 import { defaultPackagePath } from "@/fs-provider/path-constants.mjs";
 
 function sendWorkerMessage(type, content) {

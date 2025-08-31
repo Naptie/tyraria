@@ -1,3 +1,4 @@
+import { mount } from 'svelte';
 import TyrariaEditor from './lib/TyrariaEditor.svelte';
 import './main.css';
 import "@vscode-elements/elements-lite/components/action-button/action-button.css";
@@ -14,7 +15,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const workspaceInput = urlParams.get("code");
 
 // Create and mount the Tyraria editor
-new TyrariaEditor({
+mount(TyrariaEditor, {
   target: document.getElementById('app'),
   props: {
     workspaceInput,

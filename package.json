@@ -54,7 +54,7 @@
     "svelte": "^5.38.6",
     "svelte-check": "^4.3.1",
     "svelte-splitpanes": "^8.0.9",
-    "tinymist": "link:tinymist",
+    "tinymist-web": "link:tinymist-web",
     "vscode-languageclient": "^9.0.1",
     "vscode-languageserver": "^9.0.1"
   },
