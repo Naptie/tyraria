@@ -1,5 +1,5 @@
 <script>
-  import { HSplitPane, VSplitPane } from "svelte-split-pane";
+  import { Splitpanes, Pane } from "svelte-splitpanes";
 
   // Component props
   let { initialWorkspace, onWorkspaceChange } = $props();
@@ -30,7 +30,7 @@
   }
 
   // Check mobile on mount
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     checkMobile();
     window.addEventListener("resize", checkMobile);
   }
@@ -48,28 +48,27 @@
           📁
         </button>
       {/if}
-      <button
-        class="px-3 py-2 hover:bg-gray-700"
-        title="Empty workspace"
-      >
+      <button class="px-3 py-2 hover:bg-gray-700" title="Empty workspace">
         🗑️
       </button>
     </div>
 
     <div class="mx-2 flex">
-      <button
-        class="px-3 py-2 hover:bg-gray-700"
-        title="Share workspace"
-      >
+      <button class="px-3 py-2 hover:bg-gray-700" title="Share workspace">
         📤
       </button>
     </div>
   </div>
 
   <div class="flex-1 min-h-0">
-    <HSplitPane leftPanelSize={isSidebarOpen ? "20%" : "0%"} rightPanelSize={isSidebarOpen ? "80%" : "100%"}>
+    <Splitpanes>
       <!-- Sidebar -->
-      <div slot="left" class="h-full {isSidebarOpen ? 'bg-gray-900 border-r border-gray-600' : 'hidden'}">
+      <Pane
+        size={isSidebarOpen ? 20 : 0}
+        class="h-full {isSidebarOpen
+          ? 'bg-gray-900 border-r border-gray-600'
+          : 'hidden'}"
+      >
         <div bind:this={sidebarContainer} class="h-full p-4">
           <h3 class="text-sm font-bold mb-3">EXPLORER</h3>
           <div class="text-sm">
@@ -79,83 +78,96 @@
             <div class="ml-4 mb-1">📄 references.bib</div>
           </div>
         </div>
-      </div>
+      </Pane>
 
       <!-- Main content area -->
-      <div slot="right" class="h-full">
-        <HSplitPane leftPanelSize="60%" rightPanelSize="40%">
+      <Pane size={isSidebarOpen ? 80 : 100} class="h-full">
+        <Splitpanes>
           <!-- Left side: Editor and Panel area -->
-          <div slot="left" class="h-full">
-            <VSplitPane topPanelSize={isMobile ? "100%" : "70%"} downPanelSize={isMobile ? "0%" : "30%"}>
+          <Pane size={60} class="h-full">
+            <Splitpanes horizontal={true}>
               <!-- Editor area -->
-              <div slot="top" class="h-full bg-gray-800">
+              <Pane size={isMobile ? 100 : 70} class="h-full bg-gray-800">
                 <div bind:this={editorsContainer} class="h-full p-4">
-                  <div class="bg-gray-700 p-2 mb-2 text-xs">main.typ × </div>
+                  <div class="bg-gray-700 p-2 mb-2 text-xs">main.typ ×</div>
                   <div class="font-mono text-sm">
                     <div class="text-blue-400">#import</div>
                     <div class="text-green-400">"template.typ"</div>
-                    <div><br/></div>
+                    <div><br /></div>
                     <div class="text-blue-400">#show:</div>
                     <div class="text-yellow-400">project.with(</div>
-                    <div class="ml-4">title: <span class="text-green-400">"My Document"</span>,</div>
-                    <div class="ml-4">authors: (<span class="text-green-400">"Author Name"</span>,),</div>
+                    <div class="ml-4">
+                      title: <span class="text-green-400">"My Document"</span>,
+                    </div>
+                    <div class="ml-4">
+                      authors: (<span class="text-green-400">"Author Name"</span
+                      >,),
+                    </div>
                     <div class="text-yellow-400">)</div>
-                    <div><br/></div>
+                    <div><br /></div>
                     <div>= Introduction</div>
-                    <div><br/></div>
+                    <div><br /></div>
                     <div>This is a sample Typst document...</div>
                   </div>
                 </div>
-              </div>
-              
+              </Pane>
+
               <!-- Panel area (bottom) -->
-              <div slot="down" class="h-full {isMobile ? 'hidden' : 'bg-gray-900 border-t border-gray-600'}">
+              <Pane
+                size={isMobile ? 0 : 30}
+                class="h-full {isMobile
+                  ? 'hidden'
+                  : 'bg-gray-900 border-t border-gray-600'}"
+              >
                 <div bind:this={panelContainer} class="h-full p-4">
                   <h3 class="text-sm font-bold mb-3">PROBLEMS</h3>
                   <div class="text-sm text-gray-400">
                     No problems detected in workspace.
                   </div>
                 </div>
-              </div>
-            </VSplitPane>
-          </div>
+              </Pane>
+            </Splitpanes>
+          </Pane>
 
           <!-- Right side: Typst preview -->
-          <div slot="right" class="border-l border-gray-600 h-full bg-white text-black">
+          <Pane
+            size={40}
+            class="border-l border-gray-600 h-full bg-white text-black"
+          >
             <div class="h-full p-4">
               <h3 class="text-lg font-bold mb-4">My Document</h3>
               <p class="text-sm text-gray-600 mb-4">by Author Name</p>
-              
+
               <h2 class="text-base font-bold mb-3">1 Introduction</h2>
               <p class="text-sm leading-relaxed">
                 This is a sample Typst document that demonstrates the layout and
                 preview functionality. The resizable panels allow you to adjust
                 the workspace according to your preferences.
               </p>
-              
+
               <div class="mt-8 text-xs text-gray-500 border-t pt-4">
                 Preview rendered by Typst
               </div>
             </div>
-          </div>
-        </HSplitPane>
-      </div>
-    </HSplitPane>
+          </Pane>
+        </Splitpanes>
+      </Pane>
+    </Splitpanes>
   </div>
 </div>
 
 <style>
-  /* Custom styling for svelte-split-pane separators */
-  :global(.separator) {
+  /* Custom styling for svelte-splitpanes separators */
+  :global(.splitpanes__splitter) {
     background-color: #4a5568 !important;
     transition: background-color 0.3s ease;
   }
 
-  :global(.separator:hover) {
+  :global(.splitpanes__splitter:hover) {
     background-color: rgba(0, 120, 212, 0.6) !important;
   }
 
-  :global(.separator:active) {
+  :global(.splitpanes__splitter:active) {
     background-color: rgb(0, 120, 212) !important;
   }
 </style>

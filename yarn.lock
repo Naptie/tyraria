@@ -2934,9 +2934,16 @@ eslint@^9.34.0:
     natural-compare "^1.4.0"
     optionator "^0.9.3"
 
-esm-env@^1.2.1, esm-env@^1.2.2:
+esm-env-robust@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.npmmirror.com/esm-env-robust/-/esm-env-robust-0.0.3.tgz#ef95644dde2f2bd750dec4366a43950b3dc3ed50"
+  integrity sha512-90Gnuw2DALOqlL1581VxP3GHPUNHX9U+fQ+8FNcTTFClhY5gEggAAnJ3q1b2Oq23knRsjv8YpNeMRPaMLUymOA==
+  dependencies:
+    esm-env "^1.0.0"
+
+esm-env@^1.0.0, esm-env@^1.2.1, esm-env@^1.2.2:
   version "1.2.2"
-  resolved "https://registry.yarnpkg.com/esm-env/-/esm-env-1.2.2.tgz#263c9455c55861f41618df31b20cb571fc20b75e"
+  resolved "https://registry.npmmirror.com/esm-env/-/esm-env-1.2.2.tgz#263c9455c55861f41618df31b20cb571fc20b75e"
   integrity sha512-Epxrv+Nr/CaL4ZcFGPJIYLWFom+YeV1DqMLHJoEd9SYRxNbaFruBwfEX/kkHUJf55j2+TUbmDcmuilbP1TmXHA==
 
 espree@^10.0.1, espree@^10.4.0:
@@ -4131,10 +4138,12 @@ svelte-eslint-parser@^0.43.0:
     postcss "^8.4.39"
     postcss-scss "^4.0.9"
 
-svelte-split-pane@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/svelte-split-pane/-/svelte-split-pane-0.1.2.tgz#aae94c583fdcf80e3ceaefc31755f3c49886e6a8"
-  integrity sha512-JluEydC9v2DetyhlwCF3CdqAkET8XPHP7WeWbl4lVLOg55avDOhoS5U6BRhvWd104HOqhUcCSz+7Nveyjmzjeg==
+svelte-splitpanes@^8.0.9:
+  version "8.0.9"
+  resolved "https://registry.npmmirror.com/svelte-splitpanes/-/svelte-splitpanes-8.0.9.tgz#4103765febb58f847db8ef115e0e1b91462fc70b"
+  integrity sha512-L3oLXTC99M191FInTXJ/f/2i0welRql1QuVbPaU8iy6nvCR6X9VyjHCsCpLqKGWHwqkWo/AM9CQ1c0nzlb+MkA==
+  dependencies:
+    esm-env-robust "0.0.3"
 
 svelte2tsx@~0.7.33:
   version "0.7.42"

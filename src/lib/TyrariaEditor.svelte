@@ -18,7 +18,7 @@
   import TypstPreview from "./TypstPreview.svelte";
   import LoadingScreen from "./LoadingScreen.svelte";
   import { Buffer } from "buffer";
-  import { HSplitPane, VSplitPane } from "svelte-split-pane";
+  import { Splitpanes, Pane } from "svelte-splitpanes";
   import {
     defaultEntryFilePath,
     defaultWorkspacePath,
@@ -277,7 +277,7 @@
     console.log("Initializing views with DOM elements:", {
       sidebarContainer: !!sidebarContainer,
       editorsContainer: !!editorsContainer,
-      panelContainer: !!panelContainer
+      panelContainer: !!panelContainer,
     });
 
     for (const config of [
@@ -306,13 +306,21 @@
   async function loadWorkspace(fileSystemProvider) {
     await fileSystemProvider.createDirectory(defaultWorkspaceUri);
     let res = null;
-    
+
     // Load initial workspace if provided
-    if (initialWorkspace && initialWorkspace.files && Object.keys(initialWorkspace.files).length > 0) {
+    if (
+      initialWorkspace &&
+      initialWorkspace.files &&
+      Object.keys(initialWorkspace.files).length > 0
+    ) {
       console.log("Loading initial workspace");
-      for (const [filePath, base64Content] of Object.entries(initialWorkspace.files)) {
+      for (const [filePath, base64Content] of Object.entries(
+        initialWorkspace.files
+      )) {
         try {
-          const fileContent = new Uint8Array(Buffer.from(base64Content, "base64"));
+          const fileContent = new Uint8Array(
+            Buffer.from(base64Content, "base64")
+          );
           const doc = await fileSystemProvider.addFileToWorkspace(
             resolve(defaultWorkspacePath, filePath),
             fileContent,
@@ -347,7 +355,6 @@
   }
 
   async function startTinymistClient() {
-    console.log(1145141919810);
     const { reader: tmpReader, writer: tmpWriter } =
       await worker.startTinymistServer();
     reader = tmpReader;
@@ -375,9 +382,12 @@
 
   function handleBeforeUnload(event) {
     // Only prevent unload if there are unsaved changes
-    if (vscode && vscode.window.tabGroups.all.some((group) =>
-      group.tabs.some((tab) => tab.isDirty)
-    )) {
+    if (
+      vscode &&
+      vscode.window.tabGroups.all.some((group) =>
+        group.tabs.some((tab) => tab.isDirty)
+      )
+    ) {
       event.preventDefault();
       event.returnValue = "";
     }
@@ -385,7 +395,13 @@
 
   // Reactive statement to initialize Monaco Editor after DOM elements are ready
   $effect(() => {
-    if (resourcesLoaded && sidebarContainer && editorsContainer && panelContainer && !wrapper) {
+    if (
+      resourcesLoaded &&
+      sidebarContainer &&
+      editorsContainer &&
+      panelContainer &&
+      !wrapper
+    ) {
       // DOM is ready, initialize Monaco Editor
       initializeMonacoEditor();
     }
@@ -437,7 +453,9 @@
       ]);
 
       // Import the theme extension
-      await import("@codingame/monaco-vscode-theme-defaults-default-extension");
+      await import(
+        "@codingame/monaco-vscode-theme-loadExtensionAssetsdefaults-default-extension"
+      );
 
       // Assign the imported modules
       vscode = vscodeMod;
@@ -464,7 +482,7 @@
       console.log(12);
       await resourceLoader.loadAll(worker, code);
       console.log(13);
-      
+
       // Set resourcesLoaded to true to trigger DOM rendering
       resourcesLoaded = true;
 
@@ -489,7 +507,7 @@
 
 {#if resourcesLoaded}
   <div class="flex flex-col h-screen w-full">
-    <div class="hidden">
+    <div>
       <button onclick={doPreview}>do preview</button>
       <button onclick={printMain}>print main</button>
     </div>
@@ -533,32 +551,40 @@
     </div>
 
     <div class="flex-1 min-h-0">
-      <HSplitPane leftPanelSize={isSidebarOpen ? "20%" : "0%"} rightPanelSize={isSidebarOpen ? "80%" : "100%"}>
+      <Splitpanes>
         <!-- Sidebar -->
-        <div slot="left" class="h-full {isSidebarOpen ? 'border-r border-gray-600' : 'hidden'}">
+        <Pane
+          size={isSidebarOpen ? 20 : 0}
+          class="h-full {isSidebarOpen ? 'border-r border-gray-600' : 'hidden'}"
+        >
           <div bind:this={sidebarContainer} class="h-full"></div>
-        </div>
+        </Pane>
 
         <!-- Main content area -->
-        <div slot="right" class="h-full">
-          <HSplitPane leftPanelSize="60%" rightPanelSize="40%">
+        <Pane size={isSidebarOpen ? 80 : 100} class="h-full">
+          <Splitpanes>
             <!-- Left side: Editor and Panel area -->
-            <div slot="left" class="h-full">
-              <VSplitPane topPanelSize={isMobile ? "100%" : "70%"} downPanelSize={isMobile ? "0%" : "30%"}>
+            <Pane size={60} class="h-full">
+              <Splitpanes horizontal={true}>
                 <!-- Editor area -->
-                <div slot="top" class="h-full">
+                <Pane size={isMobile ? 100 : 70} class="h-full">
                   <div bind:this={editorsContainer} class="h-full"></div>
-                </div>
-                
+                </Pane>
+
                 <!-- Panel area (bottom) -->
-                <div slot="down" class="h-full {isMobile ? 'hidden' : 'border-t border-gray-600'}">
+                <Pane
+                  size={isMobile ? 0 : 30}
+                  class="h-full {isMobile
+                    ? 'hidden'
+                    : 'border-t border-gray-600'}"
+                >
                   <div bind:this={panelContainer} class="h-full"></div>
-                </div>
-              </VSplitPane>
-            </div>
+                </Pane>
+              </Splitpanes>
+            </Pane>
 
             <!-- Right side: Typst preview -->
-            <div slot="right" class="border-l border-gray-600 h-full">
+            <Pane size={40} class="border-l border-gray-600 h-full">
               <TypstPreview
                 class="bg-base"
                 bind:this={preview}
@@ -566,10 +592,10 @@
                 {writer}
                 style="margin-top: -1px"
               />
-            </div>
-          </HSplitPane>
-        </div>
-      </HSplitPane>
+            </Pane>
+          </Splitpanes>
+        </Pane>
+      </Splitpanes>
     </div>
   </div>
 {/if}
@@ -584,17 +610,17 @@
     background: var(--vscode-sideBar-background);
   }
 
-  /* Custom styling for svelte-split-pane separators */
-  :global(.separator) {
+  /* Custom styling for svelte-splitpanes separators */
+  :global(.splitpanes__splitter) {
     background-color: var(--vscode-panel-border) !important;
     transition: background-color 0.3s ease;
   }
 
-  :global(.separator:hover) {
+  :global(.splitpanes__splitter:hover) {
     background-color: rgba(0, 120, 212, 0.6) !important;
   }
 
-  :global(.separator:active) {
+  :global(.splitpanes__splitter:active) {
     background-color: rgb(0, 120, 212) !important;
   }
 </style>

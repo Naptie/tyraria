@@ -54,7 +54,7 @@
     "pako": "^2.1.0",
     "pathe": "^2.0.3",
     "rxjs": "^7.8.2",
-    "svelte-split-pane": "^0.1.2",
+    "svelte-splitpanes": "^8.0.9",
     "tinymist": "link:tinymist",
     "vscode-languageclient": "^9.0.1",
     "vscode-languageserver": "^9.0.1",
