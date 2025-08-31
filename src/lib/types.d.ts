@@ -9,7 +9,7 @@ export interface FileData {
 
 export interface TyrariaEditorOptions {
   initialWorkspace?: WorkspaceData;
-  onWorkspaceChange?: (workspace: WorkspaceData) => void;
+  onWorkspaceChange?: (_workspace: WorkspaceData) => void;
 }
 
 // Type for pastebin functions
