@@ -454,8 +454,12 @@
 
       // Import the theme extension
       await import(
-        "@codingame/monaco-vscode-theme-loadExtensionAssetsdefaults-default-extension"
+        "@codingame/monaco-vscode-theme-defaults-default-extension"
       );
+      
+      // Import necessary CSS for proper styling
+      await import("@codingame/monaco-vscode-api/css");
+      await import("@codingame/monaco-vscode-api/workbench");
 
       // Assign the imported modules
       vscode = vscodeMod;
