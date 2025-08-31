@@ -94,6 +94,10 @@ export default defineConfig(({ mode }) => {
             'tinymist',
             '@myriaddreamin/typst-ts-renderer',
             '@myriaddreamin/typst.ts',
+            // Externalize Node.js modules for plugin usage
+            'fs/promises',
+            'path',
+            'process',
             // Externalize virtual imports
             'virtual:fonts',
             'virtual:default-workspace'
