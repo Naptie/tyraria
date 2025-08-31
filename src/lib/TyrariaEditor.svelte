@@ -10,6 +10,7 @@
   let getKeybindingsServiceOverride;
   let getMarkersServiceOverride;
   let getExplorerServiceOverride;
+  let getThemeServiceOverride;
   let createFileSystemProvider;
   let TinymistLS;
   let AutoSaveConfiguration;
@@ -189,6 +190,7 @@
         serviceOverrides: {
           ...getKeybindingsServiceOverride(),
           ...getExplorerServiceOverride(),
+          ...getThemeServiceOverride(),
           ...getMarkersServiceOverride(),
         },
         userConfiguration: {
@@ -433,6 +435,7 @@
         keybindingsMod,
         markersMod,
         explorerMod,
+        themeMod,
         { createFileSystemProvider: FsProviderMod },
         { TinymistLS: TinymistLSMod },
         { AutoSaveConfiguration: AutoSaveMod },
@@ -445,6 +448,7 @@
         import("@codingame/monaco-vscode-keybindings-service-override"),
         import("@codingame/monaco-vscode-markers-service-override"),
         import("@codingame/monaco-vscode-explorer-service-override"),
+        import("@codingame/monaco-vscode-theme-service-override"),
         import("../fs-provider/fs-provider.mts"),
         import("../tinymist-ls/ls.mts"),
         import(
@@ -466,6 +470,7 @@
       getKeybindingsServiceOverride = keybindingsMod.default;
       getMarkersServiceOverride = markersMod.default;
       getExplorerServiceOverride = explorerMod.default;
+      getThemeServiceOverride = themeMod.default;
       createFileSystemProvider = FsProviderMod;
       TinymistLS = TinymistLSMod;
       AutoSaveConfiguration = AutoSaveMod;
@@ -505,7 +510,7 @@
 
 {#if resourcesLoaded}
   <div class="flex flex-col h-screen w-full">
-    <div>
+    <div class="hidden">
       <button onclick={doPreview}>do preview</button>
       <button onclick={printMain}>print main</button>
     </div>
