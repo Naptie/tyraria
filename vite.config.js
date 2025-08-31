@@ -72,7 +72,7 @@ export default defineConfig(({ mode }) => {
       ...baseConfig,
       plugins: [
         svelte(),
-        assetsLoader(), // Include assets loader for library build too
+        // Don't include assets loader for library build
       ],
       build: {
         lib: {
@@ -82,7 +82,26 @@ export default defineConfig(({ mode }) => {
           formats: ['es', 'umd']
         },
         rollupOptions: {
-          external: ['svelte'],
+          external: [
+            'svelte',
+            // Externalize all heavy dependencies that should be provided by the consumer
+            '@codingame/monaco-vscode-api',
+            '@codingame/monaco-vscode-explorer-service-override',
+            '@codingame/monaco-vscode-keybindings-service-override', 
+            '@codingame/monaco-vscode-markers-service-override',
+            '@codingame/monaco-vscode-views-service-override',
+            'monaco-editor',
+            'monaco-editor-wrapper',
+            'monaco-languageclient',
+            'vscode-languageclient',
+            'vscode-languageserver',
+            'tinymist-web',
+            '@myriaddreamin/typst-ts-renderer',
+            '@myriaddreamin/typst.ts',
+            // Externalize virtual imports
+            'virtual:fonts',
+            'virtual:default-workspace',
+          ],
           output: {
             globals: {
               svelte: 'Svelte'
