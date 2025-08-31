@@ -17,6 +17,7 @@
   import tinymistPackage from "../assets/tinymist-assets/package.json";
   import TypstPreview from "./TypstPreview.svelte";
   import LoadingScreen from "./LoadingScreen.svelte";
+  import { Buffer } from "buffer";
   import {
     defaultEntryFilePath,
     defaultWorkspacePath,
@@ -54,7 +55,7 @@
 
   // Functions
   function toggleSidebar() {
-    isSidebarOpen.update((val) => !val);
+    isSidebarOpen = !isSidebarOpen;
   }
 
   function checkMobile() {
@@ -294,14 +295,36 @@
   async function loadWorkspace(fileSystemProvider) {
     await fileSystemProvider.createDirectory(defaultWorkspaceUri);
     let res = null;
-    for (const workspaceFile of resourceLoader.getWorkspaceFiles()) {
-      let doc = await fileSystemProvider.addFileToWorkspace(
-        resolve(defaultWorkspacePath, workspaceFile.path),
-        workspaceFile.data,
-        false
-      );
-      if (workspaceFile.path === defaultEntryFilePath) {
-        res = doc;
+    
+    // Load initial workspace if provided
+    if (initialWorkspace && initialWorkspace.files && Object.keys(initialWorkspace.files).length > 0) {
+      console.log("Loading initial workspace");
+      for (const [filePath, base64Content] of Object.entries(initialWorkspace.files)) {
+        try {
+          const fileContent = new Uint8Array(Buffer.from(base64Content, "base64"));
+          const doc = await fileSystemProvider.addFileToWorkspace(
+            resolve(defaultWorkspacePath, filePath),
+            fileContent,
+            false
+          );
+          if (filePath === defaultEntryFilePath) {
+            res = doc;
+          }
+        } catch (error) {
+          console.warn(`Failed to load initial file ${filePath}:`, error);
+        }
+      }
+    } else {
+      // Load default workspace files
+      for (const workspaceFile of resourceLoader.getWorkspaceFiles()) {
+        let doc = await fileSystemProvider.addFileToWorkspace(
+          resolve(defaultWorkspacePath, workspaceFile.path),
+          workspaceFile.data,
+          false
+        );
+        if (workspaceFile.path === defaultEntryFilePath) {
+          res = doc;
+        }
       }
     }
 
@@ -340,8 +363,13 @@
   }
 
   function handleBeforeUnload(event) {
-    event.preventDefault();
-    event.returnValue = "";
+    // Only prevent unload if there are unsaved changes
+    if (vscode && vscode.window.tabGroups.all.some((group) =>
+      group.tabs.some((tab) => tab.isDirty)
+    )) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
   }
 
   onMount(async () => {
@@ -411,10 +439,7 @@
       console.log(14);
       resourcesLoaded = true;
 
-      // Load initial workspace if provided
-      if (initialWorkspace) {
-        // TODO: Load initial workspace
-      }
+      console.log("TyrariaEditor initialized successfully");
     } catch (error) {
       console.error("Failed to initialize:", error);
     }
