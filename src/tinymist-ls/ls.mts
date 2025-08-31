@@ -78,8 +78,8 @@ export class TinymistLS {
     this.reader = new BrowserMessageReader(this.worker);
     this.writer = new BrowserMessageWriter(this.worker);
     this.reader.listen((message) => {
-      if ("method" in message && message.method == "tmLog") {
-        console.log("[Tinymist WASM Log]", message.params.data);
+      if ("method" in message && message.method == "tmLog" && "params" in message) {
+        console.log("[Tinymist WASM Log]", (message as any).params.data);
         return;
       }
       console.log("LSP -> Editor:", message);

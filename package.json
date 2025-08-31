@@ -2,7 +2,20 @@
   "name": "tyraria",
   "version": "0.0.0",
   "private": false,
-  "main": "src/main.mjs",
+  "main": "dist/tyraria.js",
+  "module": "dist/tyraria.js",
+  "svelte": "src/lib/index.js",
+  "exports": {
+    ".": {
+      "svelte": "./src/lib/index.js",
+      "import": "./dist/tyraria.js",
+      "require": "./dist/tyraria.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src/lib"
+  ],
   "repository": "https://github.com/ParaN3xus/tyraria.git",
   "author": "paran3xus <paran3xus007@gmail.com>",
   "license": "GPL-3.0-only",
@@ -13,7 +26,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:lib": "vite build --mode lib",
     "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
     "dist:ghpages": "BUILD_PATH=/tyraria/ vite build && gh-pages -d dist",
     "dist:cfpages": "BUILD_PATH=/ vite build && npx wrangler pages deploy dist"
   },
@@ -24,8 +39,10 @@
     "@codingame/monaco-vscode-markers-service-override": "~20.1.1",
     "@codingame/monaco-vscode-views-service-override": "~20.1.1",
     "@gera2ld/tarjs": "^0.3.1",
+    "@iconify/svelte": "^5.0.1",
     "@myriaddreamin/typst-ts-renderer": "=0.6.1-rc3",
     "@myriaddreamin/typst.ts": "=0.6.1-rc3",
+    "@sveltejs/vite-plugin-svelte": "^6.1.3",
     "@types/pako": "^2.0.4",
     "buffer": "^6.0.3",
     "monaco-editor": "^0.52.2",
@@ -34,25 +51,22 @@
     "pako": "^2.1.0",
     "pathe": "^2.0.3",
     "rxjs": "^7.8.2",
-    "splitpanes": "^4.0.4",
+    "svelte": "^5.38.6",
+    "svelte-check": "^4.3.1",
+    "svelte-splitpanes": "^8.0.9",
     "tinymist": "link:tinymist",
     "vscode-languageclient": "^9.0.1",
-    "vscode-languageserver": "^9.0.1",
-    "vue": "^3.5.18",
-    "vue-final-modal": "^4.5.5"
+    "vscode-languageserver": "^9.0.1"
   },
   "devDependencies": {
     "@codingame/esbuild-import-meta-url-plugin": "^1.0.3",
     "@eslint/js": "^9.34.0",
     "@iconify-json/heroicons": "^1.2.2",
-    "@iconify/vue": "^5.0.0",
     "@tailwindcss/vite": "^4.1.12",
-    "@vitejs/plugin-vue": "^6.0.1",
     "@vscode-elements/elements-lite": "^0.4.0",
     "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
-    "eslint-plugin-vue": "^10.4.0",
     "gh-pages": "^6.3.0",
     "globals": "^16.3.0",
     "tailwindcss": "^4.1.12",
@@ -60,7 +74,6 @@
     "typescript-eslint": "^8.41.0",
     "vite": "^7.0.6",
     "vite-plugin-compression2": "^2.2.0",
-    "vite-plugin-vue-devtools": "^8.0.0",
     "vitest": "^3.2.4",
     "vue-eslint-parser": "^10.2.0",
     "wrangler": "^4.32.0"
