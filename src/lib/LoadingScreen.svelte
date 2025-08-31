@@ -1,8 +1,8 @@
 <script>
-  import { fromEvent } from "rxjs";
-  import { debounceTime } from "rxjs/operators";
-  import resourceLoader from "../resource-loader.mjs";
-  
+  import { fromEvent } from 'rxjs';
+  import { debounceTime } from 'rxjs/operators';
+  import resourceLoader from '../resource-loader.mjs';
+
   let loadingProgress = $state({});
   let allLoaded = $state(false);
   let progressContainer = $state([]);
@@ -12,11 +12,11 @@
     const container = progressContainer?.[0];
     if (!container) return 30;
 
-    const testElement = document.createElement("span");
-    testElement.style.visibility = "hidden";
-    testElement.style.position = "absolute";
-    testElement.style.whiteSpace = "nowrap";
-    testElement.textContent = "█".repeat(10);
+    const testElement = document.createElement('span');
+    testElement.style.visibility = 'hidden';
+    testElement.style.position = 'absolute';
+    testElement.style.whiteSpace = 'nowrap';
+    testElement.textContent = '█'.repeat(10);
 
     const computedStyle = window.getComputedStyle(container);
     testElement.style.fontFamily = computedStyle.fontFamily;
@@ -46,14 +46,7 @@
     const width = progressBarWidth;
     const filled = Math.round((progress / 100) * width);
     const empty = width - filled;
-    return (
-      "[" +
-      "█".repeat(filled) +
-      "░".repeat(empty) +
-      "] " +
-      Math.round(progress) +
-      "%"
-    );
+    return '[' + '█'.repeat(filled) + '░'.repeat(empty) + '] ' + Math.round(progress) + '%';
   };
 
   const progressListener = (progress) => {
@@ -74,7 +67,7 @@
     setTimeout(() => {
       updateProgressBarWidth();
 
-      resizeSubscription = fromEvent(window, "resize")
+      resizeSubscription = fromEvent(window, 'resize')
         .pipe(debounceTime(100))
         .subscribe(updateProgressBarWidth);
     }, 50);
@@ -89,26 +82,25 @@
 </script>
 
 {#if !allLoaded}
-  <div class="fixed inset-0 w-screen h-screen manual-bg-base flex justify-center items-center z-[9999] font-mono">
-    <div class="max-w-2xl w-[90%] text-center">
-      <h2 class="text-2xl mb-8 manual-text-main">Loading Resources...</h2>
+  <div
+    class="manual-bg-base fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center font-mono"
+  >
+    <div class="w-[90%] max-w-2xl text-center">
+      <h2 class="manual-text-main mb-8 text-2xl">Loading Resources...</h2>
       <div class="flex flex-col gap-4 text-left">
         {#each Object.entries(loadingProgress) as [key, item] (key)}
           <div class="manual-bg-surface p-4">
-            <div class="flex justify-between items-center mb-2">
-              <span class="font-bold manual-text-main">{item.name}</span>
-              <span class="opacity-80 manual-text-main">
-                {item.error ? "Error" : item.loaded ? "Done" : "Loading..."}
+            <div class="mb-2 flex items-center justify-between">
+              <span class="manual-text-main font-bold">{item.name}</span>
+              <span class="manual-text-main opacity-80">
+                {item.error ? 'Error' : item.loaded ? 'Done' : 'Loading...'}
               </span>
             </div>
-            <div
-              bind:this={progressContainer[0]}
-              class="text-sm manual-text-main overflow-hidden"
-            >
+            <div bind:this={progressContainer[0]} class="manual-text-main overflow-hidden text-sm">
               {getAsciiProgress(item.progress)}
             </div>
             {#if item.error}
-              <div class="text-red-400 mt-2">
+              <div class="mt-2 text-red-400">
                 Error: {item.error}
               </div>
             {/if}

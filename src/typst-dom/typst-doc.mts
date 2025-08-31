@@ -1,8 +1,5 @@
-import type { RenderSession } from "@myriaddreamin/typst.ts/dist/esm/renderer.mjs";
-import {
-  TypstPreviewHookedElement,
-  TypstPreviewWindowElement,
-} from "../typst-preview/types";
+import type { RenderSession } from '@myriaddreamin/typst.ts/dist/esm/renderer.mjs';
+import { TypstPreviewHookedElement, TypstPreviewWindowElement } from '../typst-preview/types';
 
 export interface ContainerDOMState {
   /// cached `hookedElem.offsetWidth` or `hookedElem.innerWidth`
@@ -17,11 +14,11 @@ export interface ContainerDOMState {
   };
 }
 
-export type RenderMode = "svg" | "canvas";
+export type RenderMode = 'svg' | 'canvas';
 
 export enum PreviewMode {
   Doc,
-  Slide,
+  Slide
 }
 
 export interface Options {
@@ -55,7 +52,7 @@ export class TypstDocumentContext<O = any> {
   /// enable partial rendering
   partialRendering: boolean = true;
   /// underlying renderer
-  renderMode: RenderMode = "svg";
+  renderMode: RenderMode = 'svg';
   r: TypstDocumentFacade = undefined!;
   /// preview mode
   previewMode: PreviewMode = PreviewMode.Doc;
@@ -64,9 +61,9 @@ export class TypstDocumentContext<O = any> {
   /// whether this content preview will mix outline titles
   isMixinOutline: boolean = false;
   /// background color
-  backgroundColor: string = "black";
+  backgroundColor: string = 'black';
   /// default page color (empty string means transparent)
-  pageColor: string = "white";
+  pageColor: string = 'white';
   /// pixel per pt
   pixelPerPt: number = 3;
   /// customized way to retrieving dom state
@@ -113,8 +110,8 @@ export class TypstDocumentContext<O = any> {
     height: 0,
     boundingRect: {
       left: 0,
-      top: 0,
-    },
+      top: 0
+    }
   };
 
   constructor(opts: Options & O) {
@@ -125,8 +122,7 @@ export class TypstDocumentContext<O = any> {
 
     /// Apply configuration
     {
-      const { renderMode, previewMode, isContentPreview, retrieveDOMState } =
-        opts || {};
+      const { renderMode, previewMode, isContentPreview, retrieveDOMState } = opts || {};
       this.partialRendering = false;
       this.renderMode = renderMode ?? this.renderMode;
       this.previewMode = previewMode ?? this.previewMode;
@@ -137,22 +133,22 @@ export class TypstDocumentContext<O = any> {
           return {
             width: this.hookedElem.offsetWidth,
             height: this.hookedElem.offsetHeight,
-            boundingRect: this.hookedElem.getBoundingClientRect(),
+            boundingRect: this.hookedElem.getBoundingClientRect()
           };
         });
-      this.backgroundColor = getComputedStyle(
-        document.documentElement
-      ).getPropertyValue("--typst-preview-background-color");
+      this.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue(
+        '--typst-preview-background-color'
+      );
     }
 
     // if init scale == 1
     // hide scrollbar if scale == 1
 
-    this.hookedElem.classList.add("hide-scrollbar-x");
-    this.hookedElem.parentElement?.classList.add("hide-scrollbar-x");
+    this.hookedElem.classList.add('hide-scrollbar-x');
+    this.hookedElem.parentElement?.classList.add('hide-scrollbar-x');
     if (this.previewMode === PreviewMode.Slide) {
-      this.hookedElem.classList.add("hide-scrollbar-y");
-      this.hookedElem.parentElement?.classList.add("hide-scrollbar-y");
+      this.hookedElem.classList.add('hide-scrollbar-y');
+      this.hookedElem.parentElement?.classList.add('hide-scrollbar-y');
     }
 
     this.installRescaleHandler();
@@ -170,15 +166,12 @@ export class TypstDocumentContext<O = any> {
   }
 
   static derive(ctx: any, mode: string) {
-    return ["rescale", "rerender", "postRender"].reduce(
-      (acc: any, x: string) => {
-        const index = x + "$" + mode;
-        acc[x] = ctx[index].bind(ctx);
-        console.assert(acc[x] !== undefined, `${x}$${mode} is undefined`);
-        return acc;
-      },
-      {} as TypstDocumentFacade
-    );
+    return ['rescale', 'rerender', 'postRender'].reduce((acc: any, x: string) => {
+      const index = x + '$' + mode;
+      acc[x] = ctx[index].bind(ctx);
+      console.assert(acc[x] !== undefined, `${x}$${mode} is undefined`);
+      return acc;
+    }, {} as TypstDocumentFacade);
   }
 
   registerMode(mode: string) {
@@ -194,8 +187,8 @@ export class TypstDocumentContext<O = any> {
     // will disable auto resizing
     // fixed factors, same as pdf.js
     const factors = [
-      0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.3, 1.5, 1.7, 1.9,
-      2.1, 2.4, 2.7, 3, 3.3, 3.7, 4.1, 4.6, 5.1, 5.7, 6.3, 7, 7.7, 8.5, 9.4, 10,
+      0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.4, 2.7, 3,
+      3.3, 3.7, 4.1, 4.6, 5.1, 5.7, 6.3, 7, 7.7, 8.5, 9.4, 10
     ];
     const doRescale = (
       scrollDirection: number,
@@ -210,18 +203,14 @@ export class TypstDocumentContext<O = any> {
           // already large than max factor
           return;
         } else {
-          this.currentScaleRatio = factors
-            .filter((x) => x > this.currentScaleRatio)
-            .at(0)!;
+          this.currentScaleRatio = factors.filter((x) => x > this.currentScaleRatio).at(0)!;
         }
       } else if (scrollDirection === 1) {
         // reduce
         if (this.currentScaleRatio <= factors.at(0)!) {
           return;
         } else {
-          this.currentScaleRatio = factors
-            .filter((x) => x < this.currentScaleRatio)
-            .at(-1)!;
+          this.currentScaleRatio = factors.filter((x) => x < this.currentScaleRatio).at(-1)!;
         }
       } else {
         // no y-axis scroll
@@ -231,18 +220,18 @@ export class TypstDocumentContext<O = any> {
 
       // hide scrollbar if scale == 1
       if (Math.abs(this.currentScaleRatio - 1) < 1e-5) {
-        this.hookedElem.classList.add("hide-scrollbar-x");
-        this.hookedElem.parentElement?.classList.add("hide-scrollbar-x");
+        this.hookedElem.classList.add('hide-scrollbar-x');
+        this.hookedElem.parentElement?.classList.add('hide-scrollbar-x');
         if (this.previewMode === PreviewMode.Slide) {
-          this.hookedElem.classList.add("hide-scrollbar-y");
-          this.hookedElem.parentElement?.classList.add("hide-scrollbar-y");
+          this.hookedElem.classList.add('hide-scrollbar-y');
+          this.hookedElem.parentElement?.classList.add('hide-scrollbar-y');
         }
       } else {
-        this.hookedElem.classList.remove("hide-scrollbar-x");
-        this.hookedElem.parentElement?.classList.remove("hide-scrollbar-x");
+        this.hookedElem.classList.remove('hide-scrollbar-x');
+        this.hookedElem.parentElement?.classList.remove('hide-scrollbar-x');
         if (this.previewMode === PreviewMode.Slide) {
-          this.hookedElem.classList.remove("hide-scrollbar-y");
-          this.hookedElem.parentElement?.classList.remove("hide-scrollbar-y");
+          this.hookedElem.classList.remove('hide-scrollbar-y');
+          this.hookedElem.parentElement?.classList.remove('hide-scrollbar-y');
         }
       }
 
@@ -251,7 +240,7 @@ export class TypstDocumentContext<O = any> {
       if (svg) {
         const scaleRatio = this.getSvgScaleRatio();
 
-        const dataHeight = Number.parseFloat(svg.getAttribute("data-height")!);
+        const dataHeight = Number.parseFloat(svg.getAttribute('data-height')!);
         const scaledHeight = Math.ceil(dataHeight * scaleRatio);
 
         // we increase the height by 2 times.
@@ -270,14 +259,14 @@ export class TypstDocumentContext<O = any> {
     };
 
     // Ctrl+= or Ctrl+- rescaling
-    const isMac = navigator.platform.toUpperCase().indexOf("MAC") !== -1;
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') !== -1;
     const keydownEventHandler = (event: KeyboardEvent) => {
       if ((!isMac && event.ctrlKey) || (isMac && event.metaKey)) {
-        if (event.key === "=") {
+        if (event.key === '=') {
           event.preventDefault();
           doRescale(-1, undefined, undefined);
           return false;
-        } else if (event.key === "-") {
+        } else if (event.key === '-') {
           event.preventDefault();
           doRescale(+1, undefined, undefined);
           return false;
@@ -301,8 +290,7 @@ export class TypstDocumentContext<O = any> {
           this.windowElem.onresize = null;
         }
         // accumulate delta distance
-        const pixels =
-          event.deltaMode === 0 ? event.deltaY : event.deltaY * pixelPerLine;
+        const pixels = event.deltaMode === 0 ? event.deltaY : event.deltaY * pixelPerLine;
         deltaDistance += pixels;
         if (Math.abs(deltaDistance) < deltaDistanceThreshold) {
           return;
@@ -314,13 +302,13 @@ export class TypstDocumentContext<O = any> {
       }
     };
 
-    document.body.addEventListener("wheel", wheelEventHandler, {
-      passive: false,
+    document.body.addEventListener('wheel', wheelEventHandler, {
+      passive: false
     });
-    document.body.addEventListener("keydown", keydownEventHandler);
+    document.body.addEventListener('keydown', keydownEventHandler);
     this.disposeList.push(() => {
-      document.body.removeEventListener("wheel", wheelEventHandler);
-      document.body.removeEventListener("keydown", keydownEventHandler);
+      document.body.removeEventListener('wheel', wheelEventHandler);
+      document.body.removeEventListener('keydown', keydownEventHandler);
     });
   }
 
@@ -335,10 +323,10 @@ export class TypstDocumentContext<O = any> {
     const container = this.cachedDOMState;
 
     const svgWidth = Number.parseFloat(
-      svg.getAttribute("data-width") || svg.getAttribute("width") || "1"
+      svg.getAttribute('data-width') || svg.getAttribute('width') || '1'
     );
     const svgHeight = Number.parseFloat(
-      svg.getAttribute("data-height") || svg.getAttribute("height") || "1"
+      svg.getAttribute('data-height') || svg.getAttribute('height') || '1'
     );
     this.currentRealScale =
       this.previewMode === PreviewMode.Slide
@@ -351,22 +339,22 @@ export class TypstDocumentContext<O = any> {
   private processQueue(svgUpdateEvent: [string, string]): boolean {
     const eventName = svgUpdateEvent[0];
     switch (eventName) {
-      case "new":
-      case "diff-v1": {
-        if (eventName === "new") {
+      case 'new':
+      case 'diff-v1': {
+        if (eventName === 'new') {
           this.reset();
         }
         this.kModule.manipulateData({
-          action: "merge",
-          data: svgUpdateEvent[1] as unknown as Uint8Array,
+          action: 'merge',
+          data: svgUpdateEvent[1] as unknown as Uint8Array
         });
 
         this.moduleInitialized = true;
         return true;
       }
-      case "viewport-change": {
+      case 'viewport-change': {
         if (!this.moduleInitialized) {
-          console.log("viewport-change before initialization");
+          console.log('viewport-change before initialization');
           return false;
         }
         return true;
@@ -398,8 +386,7 @@ export class TypstDocumentContext<O = any> {
         let needRerender = false;
         // console.log('patchQueue', JSON.stringify(this.patchQueue.map(x => x[0])));
         while (this.patchQueue.length > 0) {
-          needRerender =
-            this.processQueue(this.patchQueue.shift()!) || needRerender;
+          needRerender = this.processQueue(this.patchQueue.shift()!) || needRerender;
         }
 
         // todo: trigger viewport change once
@@ -439,14 +426,14 @@ export class TypstDocumentContext<O = any> {
 
     // todo: abstract this
     if (this.previewMode === PreviewMode.Slide) {
-      document.querySelectorAll(".typst-page-number-indicator").forEach((x) => {
+      document.querySelectorAll('.typst-page-number-indicator').forEach((x) => {
         x.textContent = `${this.kModule.retrievePagesInfo().length}`;
       });
     }
   }
 
   addChangement(change: [string, string]) {
-    if (change[0] === "new") {
+    if (change[0] === 'new') {
       this.patchQueue.splice(0, this.patchQueue.length);
     }
 
@@ -460,7 +447,7 @@ export class TypstDocumentContext<O = any> {
       clearTimeout(this.vpTimeout);
     }
 
-    if (change[0] === "viewport-change" && this.isRendering) {
+    if (change[0] === 'viewport-change' && this.isRendering) {
       // delay viewport change a bit
       this.vpTimeout = setTimeout(pushChange, this.sampledRenderTime || 100);
     } else {
@@ -469,7 +456,7 @@ export class TypstDocumentContext<O = any> {
   }
 
   addViewportChange() {
-    this.addChangement(["viewport-change", ""]);
+    this.addChangement(['viewport-change', '']);
   }
 
   setPartialPageNumber(page: number): boolean {
@@ -510,7 +497,7 @@ export function provideDoc<T extends TypstDocumentContext>(
 
     constructor(options: Options) {
       if (options.isContentPreview) {
-        options.renderMode = "canvas";
+        options.renderMode = 'canvas';
       }
 
       this.kModule = options.kModule;
@@ -610,16 +597,7 @@ export function composeDoc<TBase extends GConstructor, F1, F2, F3, F4, F5, F6>(
   f5: (base: F4) => F5,
   f6: (base: F5) => F6
 ): TBase & F1 & F2 & F3 & F4 & F5 & F6;
-export function composeDoc<
-  TBase extends GConstructor,
-  F1,
-  F2,
-  F3,
-  F4,
-  F5,
-  F6,
-  F7
->(
+export function composeDoc<TBase extends GConstructor, F1, F2, F3, F4, F5, F6, F7>(
   Base: TBase,
   f1: (base: TBase) => F1,
   f2: (base: F1) => F2,
@@ -629,17 +607,7 @@ export function composeDoc<
   f6: (base: F5) => F6,
   f7: (base: F6) => F7
 ): TBase & F1 & F2 & F3 & F4 & F5 & F6 & F7;
-export function composeDoc<
-  TBase extends GConstructor,
-  F1,
-  F2,
-  F3,
-  F4,
-  F5,
-  F6,
-  F7,
-  F8
->(
+export function composeDoc<TBase extends GConstructor, F1, F2, F3, F4, F5, F6, F7, F8>(
   Base: TBase,
   f1: (base: TBase) => F1,
   f2: (base: F1) => F2,
@@ -650,18 +618,7 @@ export function composeDoc<
   f7: (base: F6) => F7,
   f8: (base: F7) => F8
 ): TBase & F1 & F2 & F3 & F4 & F5 & F6 & F7 & F8;
-export function composeDoc<
-  TBase extends GConstructor,
-  F1,
-  F2,
-  F3,
-  F4,
-  F5,
-  F6,
-  F7,
-  F8,
-  F9
->(
+export function composeDoc<TBase extends GConstructor, F1, F2, F3, F4, F5, F6, F7, F8, F9>(
   Base: TBase,
   f1: (base: TBase) => F1,
   f2: (base: F1) => F2,
@@ -673,9 +630,6 @@ export function composeDoc<
   f8: (base: F7) => F8,
   f9: (base: F8) => F9
 ): TBase & F1 & F2 & F3 & F4 & F5 & F6 & F7 & F8 & F9;
-export function composeDoc<TBase extends GConstructor>(
-  Base: TBase,
-  ...mixins: any[]
-): TBase {
+export function composeDoc<TBase extends GConstructor>(Base: TBase, ...mixins: any[]): TBase {
   return mixins.reduce((acc, mixin) => mixin(acc), Base);
 }

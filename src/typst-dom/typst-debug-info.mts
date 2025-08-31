@@ -1,13 +1,6 @@
-import {
-  TypstPreviewHookedElement,
-  TypstPreviewWindowElement,
-} from "../typst-preview/types";
-import { triggerRipple } from "./typst-animation.mjs";
-import {
-  PreviewMode,
-  type GConstructor,
-  type TypstDocumentContext,
-} from "./typst-doc.mjs";
+import { TypstPreviewHookedElement, TypstPreviewWindowElement } from '../typst-preview/types';
+import { triggerRipple } from './typst-animation.mjs';
+import { PreviewMode, type GConstructor, type TypstDocumentContext } from './typst-doc.mjs';
 
 const enum SourceMappingType {
   Text = 0,
@@ -15,7 +8,7 @@ const enum SourceMappingType {
   Image = 2,
   Shape = 3,
   Page = 4,
-  CharIndex = 5,
+  CharIndex = 5
 }
 
 export interface ElementPoint {
@@ -31,12 +24,12 @@ export interface ElementPoint {
 // - typst-image
 // - typst-shape
 const CssClassToType = [
-  ["typst-text", SourceMappingType.Text],
-  ["typst-group", SourceMappingType.Group],
-  ["typst-image", SourceMappingType.Image],
-  ["typst-shape", SourceMappingType.Shape],
-  ["typst-page", SourceMappingType.Page],
-  ["tsel", SourceMappingType.CharIndex],
+  ['typst-text', SourceMappingType.Text],
+  ['typst-group', SourceMappingType.Group],
+  ['typst-image', SourceMappingType.Image],
+  ['typst-shape', SourceMappingType.Shape],
+  ['typst-page', SourceMappingType.Page],
+  ['tsel', SourceMappingType.CharIndex]
 ] as const;
 
 function castToSourceMappingElement(
@@ -47,7 +40,7 @@ function castToSourceMappingElement(
   }
   for (const [cls, ty] of CssClassToType) {
     if (elem.classList.contains(cls)) {
-      return [ty, elem, ""];
+      return [ty, elem, ''];
     }
   }
   return undefined;
@@ -71,9 +64,7 @@ function castToNestSourceMappingElement(
   return undefined;
 }
 
-function castChildrenToSourceMappingElement(
-  elem: Element
-): [SourceMappingType, Element, string][] {
+function castChildrenToSourceMappingElement(elem: Element): [SourceMappingType, Element, string][] {
   return Array.from(elem.children)
     .map(castToNestSourceMappingElement)
     .filter((x) => x) as [SourceMappingType, Element, string][];
@@ -82,7 +73,7 @@ function castChildrenToSourceMappingElement(
 export function removeSourceMappingHandler(docRoot: TypstPreviewHookedElement) {
   const prevSourceMappingHandler = docRoot.sourceMappingHandler;
   if (prevSourceMappingHandler) {
-    docRoot.removeEventListener("click", prevSourceMappingHandler);
+    docRoot.removeEventListener('click', prevSourceMappingHandler);
     delete docRoot.sourceMappingHandler;
     // console.log("remove removeSourceMappingHandler");
   }
@@ -92,7 +83,7 @@ export function resolveSourceLeaf(
   elem: Element,
   path: ElementPoint[]
 ): [Element, number] | undefined {
-  const page = elem.getElementsByClassName("typst-page")[0];
+  const page = elem.getElementsByClassName('typst-page')[0];
   let curElem = page;
 
   for (const point of path.slice(1)) {
@@ -123,8 +114,8 @@ export function installEditorJumpToHandler(
     let curElem: Element | null = elem;
     while (curElem) {
       if (
-        curElem.classList.contains("typst-page-inner") &&
-        curElem.getAttribute("data-page-number") === pageNumber
+        curElem.classList.contains('typst-page-inner') &&
+        curElem.getAttribute('data-page-number') === pageNumber
       ) {
         return curElem;
       }
@@ -138,8 +129,7 @@ export function installEditorJumpToHandler(
     const x = event.clientX;
     const y = event.clientY;
 
-    let mayPageElem: [SourceMappingType, Element, string] | undefined =
-      undefined;
+    let mayPageElem: [SourceMappingType, Element, string] | undefined = undefined;
 
     while (elem) {
       mayPageElem = castToSourceMappingElement(elem);
@@ -157,7 +147,7 @@ export function installEditorJumpToHandler(
     }
 
     const pageElem = mayPageElem[1];
-    const pageNumber = pageElem.getAttribute("data-page-number")!;
+    const pageNumber = pageElem.getAttribute('data-page-number')!;
     const backgroundRect = getNthBackgroundRect(pageElem, pageNumber);
     if (!backgroundRect) {
       return undefined;
@@ -170,8 +160,8 @@ export function installEditorJumpToHandler(
 
     const xPercent = pageX / pageRect.width;
     const yPercent = pageY / pageRect.height;
-    const dataWidthS = pageElem.getAttribute("data-page-width")!;
-    const dataHeightS = pageElem.getAttribute("data-page-height")!;
+    const dataWidthS = pageElem.getAttribute('data-page-width')!;
+    const dataHeightS = pageElem.getAttribute('data-page-height')!;
 
     // console.log(pageNumber, dataWidthS, dataHeightS);
 
@@ -184,21 +174,19 @@ export function installEditorJumpToHandler(
     return {
       page_no: Number.parseInt(pageNumber) + 1,
       x: xPercent * dataWidth,
-      y: yPercent * dataHeight,
+      y: yPercent * dataHeight
     };
   };
 
   removeSourceMappingHandler(docRoot);
-  const sourceMappingHandler = (docRoot.sourceMappingHandler = async (
-    event: MouseEvent
-  ) => {
+  const sourceMappingHandler = (docRoot.sourceMappingHandler = async (event: MouseEvent) => {
     const elem = event.target! as Element;
 
     const frameLoc = await resolveFrameLoc(event, elem);
     if (!frameLoc) {
       return;
     }
-    console.log("frameLoc", frameLoc);
+    console.log('frameLoc', frameLoc);
     windowElem.typstWebsocket.send(`src-point ${JSON.stringify(frameLoc)}`);
 
     const triggerWindow = document.body || document.firstElementChild;
@@ -212,21 +200,21 @@ export function installEditorJumpToHandler(
       triggerWindow,
       left,
       top,
-      "typst-debug-react-ripple",
-      "typst-debug-react-ripple-effect .4s linear"
+      'typst-debug-react-ripple',
+      'typst-debug-react-ripple-effect .4s linear'
     );
 
     return;
   });
 
-  docRoot.addEventListener("click", sourceMappingHandler);
+  docRoot.addEventListener('click', sourceMappingHandler);
 }
 
 export interface TypstDebugJumpDocument {}
 
-export function provideDebugJumpDoc<
-  TBase extends GConstructor<TypstDocumentContext>
->(Base: TBase): TBase & GConstructor<TypstDebugJumpDocument> {
+export function provideDebugJumpDoc<TBase extends GConstructor<TypstDocumentContext>>(
+  Base: TBase
+): TBase & GConstructor<TypstDebugJumpDocument> {
   return class DebugJumpDocument extends Base {
     constructor(...args: any[]) {
       super(...args);
@@ -240,12 +228,7 @@ export function provideDebugJumpDoc<
       }
     }
 
-    scrollTo(
-      pageRect: ScrollRect,
-      pageNo: number,
-      innerLeft: number,
-      innerTop: number
-    ) {
+    scrollTo(pageRect: ScrollRect, pageNo: number, innerLeft: number, innerTop: number) {
       if (this.previewMode === PreviewMode.Slide) {
         this.setPartialPageNumber(pageNo);
         return;
@@ -270,27 +253,25 @@ export function provideDebugJumpDoc<
       const widthOccupied = (100 * 100 * pw) / pageRect.width;
 
       const pageAdjustLeft = pageRect.left - basePos.left - 5 * pw;
-      const pageAdjust =
-        pageRect.left - basePos.left + pageRect.width - 95 * pw;
+      const pageAdjust = pageRect.left - basePos.left + pageRect.width - 95 * pw;
 
       // default single-column or multi-column layout
       if (widthOccupied >= 90 || widthOccupied < 50) {
         this.windowElem.scrollTo({
-          behavior: "smooth",
+          behavior: 'smooth',
           left: xOffset,
-          top: yOffset,
+          top: yOffset
         });
       } else {
         // for double-column layout
         // console.log('occupied adjustment', widthOccupied, page);
 
-        const xOffsetAdjsut =
-          xOffset > pageAdjust ? pageAdjust : pageAdjustLeft;
+        const xOffsetAdjsut = xOffset > pageAdjust ? pageAdjust : pageAdjustLeft;
 
         this.windowElem.scrollTo({
-          behavior: "smooth",
+          behavior: 'smooth',
           left: xOffsetAdjsut,
-          top: yOffset,
+          top: yOffset
         });
       }
 
@@ -326,11 +307,11 @@ export function provideDebugJumpDoc<
         windowRoot,
         left,
         top,
-        "typst-jump-ripple",
-        "typst-jump-ripple-effect .4s linear"
+        'typst-jump-ripple',
+        'typst-jump-ripple-effect .4s linear'
       );
     }
   };
 }
 
-type ScrollRect = Pick<DOMRect, "left" | "top" | "width" | "height">;
+type ScrollRect = Pick<DOMRect, 'left' | 'top' | 'width' | 'height'>;

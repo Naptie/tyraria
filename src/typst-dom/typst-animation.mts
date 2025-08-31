@@ -6,12 +6,12 @@ export function triggerRipple(
   animation: string,
   color?: string
 ) {
-  const ripple = document.createElement("div");
+  const ripple = document.createElement('div');
 
   ripple.className = className;
-  ripple.style.left = left.toString() + "px";
-  ripple.style.top = top.toString() + "px";
-  ripple.style.position = "absolute";
+  ripple.style.left = left.toString() + 'px';
+  ripple.style.top = top.toString() + 'px';
+  ripple.style.position = 'absolute';
 
   if (color) {
     ripple.style.border = `1px solid ${color}`;

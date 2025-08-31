@@ -4,12 +4,12 @@ import {
   equalPatchElem,
   interpretTargetView,
   patchAttributes,
-  runOriginViewInstructions,
-} from "./typst-patch.mjs";
+  runOriginViewInstructions
+} from './typst-patch.mjs';
 
 /// Predicate that a xml element is a `<g>` element.
 function isGElem(node: Element): node is SVGGElement {
-  return node.tagName === "g";
+  return node.tagName === 'g';
 }
 
 /// Patch the `prev <svg>` in the DOM according to `next <svg>` from the backend.
@@ -76,13 +76,10 @@ interface FrozenReplacement {
   debug?: string;
 }
 
-function preReplaceNonSVGElements(
-  prev: Element,
-  next: Element
-): FrozenReplacement {
+function preReplaceNonSVGElements(prev: Element, next: Element): FrozenReplacement {
   const removedIndices: number[] = [];
   const frozenReplacement: FrozenReplacement = {
-    inserts: [],
+    inserts: []
     //     debug: `preReplaceNonSVGElements ${since}
     // prev: ${prev.outerHTML}
     // next: ${next.outerHTML}`
@@ -120,9 +117,7 @@ function postReplaceNonSVGElements(prev: Element, frozen: FrozenReplacement) {
   if (gElements.length + 1 !== frozen.inserts.length) {
     throw new Error(`invalid frozen replacement: gElements.length (${
       gElements.length
-    }) + 1 !=== frozen.inserts.length (${frozen.inserts.length}) ${
-      frozen.debug || ""
-    }
+    }) + 1 !=== frozen.inserts.length (${frozen.inserts.length}) ${frozen.debug || ''}
   current: ${prev.outerHTML}`);
   }
 
@@ -148,27 +143,24 @@ const SVG_HEADER_LENGTH = 3;
 
 function initOrPatchSvgHeader(svg: SVGElement) {
   if (!svg) {
-    throw new Error("no initial svg found");
+    throw new Error('no initial svg found');
   }
 
-  const prevResourceHeader = document.getElementById("typst-svg-resources");
+  const prevResourceHeader = document.getElementById('typst-svg-resources');
   if (prevResourceHeader) {
     patchSvgHeader(prevResourceHeader as unknown as SVGElement, svg);
     return;
   }
 
   /// Create a global resource header
-  const resourceHeader = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "svg"
-  );
-  resourceHeader.id = "typst-svg-resources";
+  const resourceHeader = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  resourceHeader.id = 'typst-svg-resources';
   // set viewbox, width, and height
-  resourceHeader.setAttribute("viewBox", "0 0 0 0");
-  resourceHeader.setAttribute("width", "0");
-  resourceHeader.setAttribute("height", "0");
-  resourceHeader.style.opacity = "0";
-  resourceHeader.style.position = "absolute";
+  resourceHeader.setAttribute('viewBox', '0 0 0 0');
+  resourceHeader.setAttribute('width', '0');
+  resourceHeader.setAttribute('height', '0');
+  resourceHeader.style.opacity = '0';
+  resourceHeader.style.position = 'absolute';
 
   /// Move resources
   for (let i = 0; i < SVG_HEADER_LENGTH; i++) {
@@ -188,27 +180,24 @@ function patchSvgHeader(prev: SVGElement, next: SVGElement) {
 
     // console.log("prev", prevChild);
     // console.log("next", nextChild);
-    if (prevChild.tagName === "defs") {
-      if (prevChild.getAttribute("class") === "glyph") {
+    if (prevChild.tagName === 'defs') {
+      if (prevChild.getAttribute('class') === 'glyph') {
         // console.log("append glyphs:", nextChild.children, "to", prevChild);
         prevChild.append(...nextChild.children);
-      } else if (prevChild.getAttribute("class") === "clip-path") {
+      } else if (prevChild.getAttribute('class') === 'clip-path') {
         // console.log("clip path: replace");
         // todo: gc
         prevChild.append(...nextChild.children);
       }
-    } else if (
-      prevChild.tagName === "style" &&
-      nextChild.getAttribute("data-reuse") !== "1"
-    ) {
+    } else if (prevChild.tagName === 'style' && nextChild.getAttribute('data-reuse') !== '1') {
       // console.log("replace extra style", prevChild, nextChild);
 
       // todo: gc
       if (nextChild.textContent) {
         // todo: looks slow
         // https://stackoverflow.com/questions/3326494/parsing-css-in-javascript-jquery
-        const doc = document.implementation.createHTMLDocument(""),
-          styleElement = document.createElement("style");
+        const doc = document.implementation.createHTMLDocument(''),
+          styleElement = document.createElement('style');
 
         styleElement.textContent = nextChild.textContent;
         // the style will only be parsed once it is added to a document
@@ -245,7 +234,7 @@ export function patchSvgToContainer(
   decorateSvgElement: (elem: SVGElement) => void = () => void 0
 ) {
   if (hookedElem.firstElementChild) {
-    const elem = document.createElement("div");
+    const elem = document.createElement('div');
     elem.innerHTML = patchStr;
     const next = elem.firstElementChild! as SVGElement;
     initOrPatchSvgHeader(next);

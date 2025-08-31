@@ -1,9 +1,9 @@
-import fs from "fs/promises";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const FONT_EXTENSIONS = [".ttc", ".ttf", ".otf", ".otc"];
+const FONT_EXTENSIONS = ['.ttc', '.ttf', '.otf', '.otc'];
 
 async function getAllFiles(dir, extensions) {
   const files = [];
@@ -15,10 +15,7 @@ async function getAllFiles(dir, extensions) {
       const fullPath = path.join(directory, entry.name);
       if (entry.isDirectory()) {
         await scan(fullPath);
-      } else if (
-        !extensions ||
-        extensions.some((ext) => entry.name.toLowerCase().endsWith(ext))
-      ) {
+      } else if (!extensions || extensions.some((ext) => entry.name.toLowerCase().endsWith(ext))) {
         files.push(fullPath);
       }
     }
@@ -37,36 +34,32 @@ async function getAllDefaultWorkspaceFiles(dir) {
 
 export function assetsLoader() {
   return {
-    name: "assets-loader",
+    name: 'assets-loader',
     resolveId(id) {
-      if (id === "virtual:fonts" || id === "virtual:default-workspace")
-        return id;
+      if (id === 'virtual:fonts' || id === 'virtual:default-workspace') return id;
     },
     async load(id) {
-      if (id === "virtual:fonts") {
+      if (id === 'virtual:fonts') {
         return generateVirtualModule({
-          dir: path.resolve(__dirname, "../src/assets/fonts"),
+          dir: path.resolve(__dirname, '../src/assets/fonts'),
           getFiles: getAllFontFiles,
-          prefix: "font",
-          suffix: "?url",
-          getPathFromFile: (file, _) => file,
+          prefix: 'font',
+          suffix: '?url',
+          getPathFromFile: (file, _) => file
         });
       }
 
-      if (id === "virtual:default-workspace") {
-        const defaultWorkspaceDir = path.resolve(
-          __dirname,
-          "../src/assets/default-workspace"
-        );
+      if (id === 'virtual:default-workspace') {
+        const defaultWorkspaceDir = path.resolve(__dirname, '../src/assets/default-workspace');
         return generateVirtualModule({
           dir: defaultWorkspaceDir,
           getFiles: getAllDefaultWorkspaceFiles,
-          prefix: "ws",
-          suffix: "?url",
-          getPathFromFile: (file, dir) => path.relative(dir, file),
+          prefix: 'ws',
+          suffix: '?url',
+          getPathFromFile: (file, dir) => path.relative(dir, file)
         });
       }
-    },
+    }
   };
 }
 
@@ -77,10 +70,10 @@ async function generateVirtualModule(options) {
 
   const imports = files
     .map((file, index) => {
-      const absolutePath = path.resolve(file);
+      const absolutePath = path.resolve(file).replace(/\\/g, '/');
       return `import ${prefix}${index}Url from '${absolutePath}${suffix}'`;
     })
-    .join("\n");
+    .join('\n');
 
   const exports = files
     .map((file, index) => {
@@ -99,7 +92,7 @@ async function generateVirtualModule(options) {
             ${getData}
         }`;
     })
-    .join(",");
+    .join(',');
 
   return `
         ${imports}

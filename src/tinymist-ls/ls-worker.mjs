@@ -1,19 +1,19 @@
 import {
   createConnection,
   BrowserMessageReader,
-  BrowserMessageWriter,
-} from "vscode-languageserver/browser";
-import { InitializeRequest } from "vscode-languageserver";
-import init, { TinymistLanguageServer } from "tinymist-web";
-import { defaultPackagePath } from "@/fs-provider/path-constants.mjs";
+  BrowserMessageWriter
+} from 'vscode-languageserver/browser';
+import { InitializeRequest } from 'vscode-languageserver';
+import init, { TinymistLanguageServer } from 'tinymist';
+import { defaultPackagePath } from '@/fs-provider/path-constants.mjs';
 
 function sendWorkerMessage(type, content) {
   self.postMessage({
-    method: "worker",
+    method: 'worker',
     params: {
       type: type,
-      content: content,
-    },
+      content: content
+    }
   });
 }
 
@@ -27,13 +27,11 @@ class TinymistServer {
     this.connection = null;
     this.fonts = [];
 
-    self.addEventListener("message", (event) =>
-      this.handleWorkerMessages(event)
-    );
+    self.addEventListener('message', (event) => this.handleWorkerMessages(event));
   }
 
   async handleWorkerMessages(event) {
-    if (event.data.method !== "worker") {
+    if (event.data.method !== 'worker') {
       return;
     }
 
@@ -41,21 +39,21 @@ class TinymistServer {
     const type = params.type;
     const content = params.content;
     switch (type) {
-      case "loadFonts":
+      case 'loadFonts':
         this.fonts = content.fonts;
         console.log(`${this.fonts.length} fonts were loaded to worker!`);
-        sendWorkerMessage("fontsLoaded", null);
+        sendWorkerMessage('fontsLoaded', null);
         break;
-      case "start":
+      case 'start':
         await this.start();
         console.log(`Worker started!`);
         break;
-      case "loadWASM":
+      case 'loadWASM':
         await this.loadWasm();
         break;
-      case "scheduleAsync":
+      case 'scheduleAsync':
         this.bridge.schedule_async();
-        console.warn("schedule_async");
+        console.warn('schedule_async');
         break;
     }
   }
@@ -66,17 +64,15 @@ class TinymistServer {
     this.initializeBridge();
     this.setupConnectionHandlers();
 
-    sendWorkerMessage("serverWorkerReady", null);
+    sendWorkerMessage('serverWorkerReady', null);
     this.connection.listen();
   }
 
   async loadWasm() {
     try {
       await init();
-      console.log(
-        `tinymist ${TinymistLanguageServer.version()} wasm is loaded!`
-      );
-      sendWorkerMessage("WASMLoaded", null);
+      console.log(`tinymist ${TinymistLanguageServer.version()} wasm is loaded!`);
+      sendWorkerMessage('WASMLoaded', null);
     } catch (e) {
       console.err(e);
     }
@@ -87,9 +83,9 @@ class TinymistServer {
       const packageRoot = `${defaultPackagePath}/${spec.namespace}/${spec.name}/${spec.version}`;
       const url = `https://packages.typst.org/${spec.namespace}/${spec.name}-${spec.version}.tar.gz`;
 
-      sendWorkerMessage("resolvePackage", {
+      sendWorkerMessage('resolvePackage', {
         url: url,
-        packageRoot: packageRoot,
+        packageRoot: packageRoot
       });
 
       return packageRoot;
@@ -102,7 +98,7 @@ class TinymistServer {
     this.connection = createConnection(reader, writer);
 
     reader.listen((message) => {
-      console.log("Editor -> LSP:", message);
+      console.log('Editor -> LSP:', message);
     });
   }
 
@@ -130,7 +126,7 @@ class TinymistServer {
           .catch((err) =>
             this.bridge?.on_response({
               id,
-              error: { code: -32603, message: err.toString() },
+              error: { code: -32603, message: err.toString() }
             })
           );
       },
@@ -138,15 +134,13 @@ class TinymistServer {
         this.connection.sendNotification(method, params);
       },
       resolveFn: this.resolvePackage,
-      extraFonts: this.fonts,
+      extraFonts: this.fonts
     });
   }
 
   setupConnectionHandlers() {
     this.connection.onInitialize((params) =>
-      this.handleEvents(
-        this.bridge?.on_request(InitializeRequest.method, params)
-      )
+      this.handleEvents(this.bridge?.on_request(InitializeRequest.method, params))
     );
 
     this.connection.onRequest((method, params) => {
@@ -154,12 +148,12 @@ class TinymistServer {
     });
 
     this.connection.onNotification((method, params) => {
-      if (method === "workspace/didChangeConfiguration") {
-        console.log("skipping");
+      if (method === 'workspace/didChangeConfiguration') {
+        console.log('skipping');
         return;
       }
-      if (method === "worker") {
-        console.log("worker msg, skipping");
+      if (method === 'worker') {
+        console.log('worker msg, skipping');
         return;
       }
       return this.handleEvents(this.bridge?.on_notification(method, params));
@@ -168,4 +162,4 @@ class TinymistServer {
 }
 
 new TinymistServer();
-sendWorkerMessage("serverWorkerInited", null);
+sendWorkerMessage('serverWorkerInited', null);

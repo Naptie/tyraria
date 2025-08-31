@@ -1,8 +1,8 @@
 import { mount } from 'svelte';
 import TyrariaEditor from './lib/TyrariaEditor.svelte';
-import './main.css';
-import "@vscode-elements/elements-lite/components/action-button/action-button.css";
-import "@vscode-elements/elements-lite/components/button/button.css";
+import './app.css';
+import '@vscode-elements/elements-lite/components/action-button/action-button.css';
+import '@vscode-elements/elements-lite/components/button/button.css';
 
 // Function to handle workspace output
 function handleWorkspaceOutput(workspaceData) {
@@ -12,7 +12,7 @@ function handleWorkspaceOutput(workspaceData) {
 
 // Get workspace input from URL parameters (for pastebin functionality)
 const urlParams = new URLSearchParams(window.location.search);
-const workspaceInput = urlParams.get("code");
+const workspaceInput = urlParams.get('code');
 
 // Create and mount the Tyraria editor
 mount(TyrariaEditor, {

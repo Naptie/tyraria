@@ -1,6 +1,6 @@
-import { resolve } from "pathe";
-import { fetchFromPastebin } from "./pastebin";
-import { defaultWorkspacePath } from "./fs-provider/path-constants.mjs";
+import { resolve } from 'pathe';
+import { fetchFromPastebin } from './pastebin';
+import { defaultWorkspacePath } from './fs-provider/path-constants.mjs';
 
 class ResourceLoader {
   constructor() {
@@ -11,13 +11,13 @@ class ResourceLoader {
     this.resources = {
       fonts: null,
       wasm: null,
-      workspaceFiles: null,
+      workspaceFiles: null
     };
 
     this.loadingProgress = {
-      fonts: { loaded: false, progress: 0, name: "Loading fonts" },
-      wasm: { loaded: false, progress: 0, name: "Loading WASM module" },
-      workspaceFiles: { loaded: false, progress: 0, name: "Loading workspace" },
+      fonts: { loaded: false, progress: 0, name: 'Loading fonts' },
+      wasm: { loaded: false, progress: 0, name: 'Loading WASM module' },
+      workspaceFiles: { loaded: false, progress: 0, name: 'Loading workspace' }
     };
 
     this.listeners = [];
@@ -54,9 +54,9 @@ class ResourceLoader {
     if (this.resources.fonts) return this.resources.fonts;
 
     try {
-      this.updateProgress("fonts", 10);
-      const fonts = await import("virtual:fonts");
-      this.updateProgress("fonts", 50);
+      this.updateProgress('fonts', 10);
+      const fonts = await import('virtual:fonts');
+      this.updateProgress('fonts', 50);
 
       let completedCount = 0;
       const totalFonts = fonts.default.length;
@@ -66,24 +66,20 @@ class ResourceLoader {
           const data = await font.getData();
           completedCount++;
           const progress = 50 + (completedCount / totalFonts) * 40;
-          this.updateProgress("fonts", progress);
+          this.updateProgress('fonts', progress);
           return { ...font, data };
         })
       );
 
       this.resources.fonts = loadedFonts;
-      this.updateProgress("fonts", 90);
+      this.updateProgress('fonts', 90);
 
       worker.loadFonts(loadedFonts.map((font) => font.data));
-      this.markComplete("fonts");
+      this.markComplete('fonts');
       return loadedFonts;
     } catch (error) {
-      console.error("Failed to load fonts:", error);
-      this.updateProgress(
-        "fonts",
-        this.loadingProgress.fonts.progress,
-        error.message
-      );
+      console.error('Failed to load fonts:', error);
+      this.updateProgress('fonts', this.loadingProgress.fonts.progress, error.message);
       throw error;
     }
   }
@@ -92,20 +88,16 @@ class ResourceLoader {
     if (this.resources.wasm) return this.resources.wasm;
 
     try {
-      this.updateProgress("wasm", 10);
+      this.updateProgress('wasm', 10);
       await worker.loadWasm();
 
-      this.updateProgress("wasm", 90);
+      this.updateProgress('wasm', 90);
       this.resources.wasm = true;
-      this.markComplete("wasm");
+      this.markComplete('wasm');
       return true;
     } catch (error) {
-      console.error("Failed to load WASM module:", error);
-      this.updateProgress(
-        "wasm",
-        this.loadingProgress.wasm.progress,
-        error.message
-      );
+      console.error('Failed to load WASM module:', error);
+      this.updateProgress('wasm', this.loadingProgress.wasm.progress, error.message);
       throw error;
     }
   }
@@ -114,20 +106,20 @@ class ResourceLoader {
     if (this.resources.workspaceFiles) return this.resources.workspaceFiles;
 
     try {
-      this.updateProgress("workspaceFiles", 10);
+      this.updateProgress('workspaceFiles', 10);
 
       if (code) {
         const pastebinFiles = await fetchFromPastebin(code);
         if (pastebinFiles) {
           this.resources.workspaceFiles = pastebinFiles;
-          this.markComplete("workspaceFiles");
+          this.markComplete('workspaceFiles');
           return pastebinFiles;
         }
       }
 
       // load default workspace
-      const defaultWorkspaceFiles = await import("virtual:default-workspace");
-      this.updateProgress("workspaceFiles", 50);
+      const defaultWorkspaceFiles = await import('virtual:default-workspace');
+      this.updateProgress('workspaceFiles', 50);
       let completedCount = 0;
       const totalFiles = defaultWorkspaceFiles.default.length;
       const loadedFiles = await Promise.all(
@@ -135,21 +127,21 @@ class ResourceLoader {
           const data = await file.getData();
           completedCount++;
           const progress = 50 + (completedCount / totalFiles) * 50;
-          this.updateProgress("workspaceFiles", progress);
+          this.updateProgress('workspaceFiles', progress);
           return {
             ...file,
             data,
-            path: resolve(defaultWorkspacePath, file.path),
+            path: resolve(defaultWorkspacePath, file.path)
           };
         })
       );
       this.resources.workspaceFiles = loadedFiles;
-      this.markComplete("workspaceFiles");
+      this.markComplete('workspaceFiles');
       return loadedFiles;
     } catch (error) {
-      console.error("Failed to load workspace", error);
+      console.error('Failed to load workspace', error);
       this.updateProgress(
-        "workspaceFiles",
+        'workspaceFiles',
         this.loadingProgress.workspaceFiles.progress,
         error.message
       );
@@ -158,11 +150,7 @@ class ResourceLoader {
   }
 
   async loadAll(worker, code) {
-    const promises = [
-      this.loadFonts(worker),
-      this.loadWasm(worker),
-      this.loadWorkspaceFiles(code),
-    ];
+    const promises = [this.loadFonts(worker), this.loadWasm(worker), this.loadWorkspaceFiles(code)];
 
     await Promise.all(promises);
     return this.resources;

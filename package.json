@@ -4,9 +4,11 @@
   "private": false,
   "main": "dist/tyraria.js",
   "module": "dist/tyraria.js",
+  "types": "src/lib/index.d.ts",
   "svelte": "src/lib/index.js",
   "exports": {
     ".": {
+      "types": "./src/lib/index.d.ts",
       "svelte": "./src/lib/index.js",
       "import": "./dist/tyraria.js",
       "require": "./dist/tyraria.js"
@@ -16,8 +18,12 @@
     "dist",
     "src/lib"
   ],
-  "repository": "https://github.com/ParaN3xus/tyraria.git",
+  "repository": "https://github.com/Naptie/tyraria.git",
   "author": "paran3xus <paran3xus007@gmail.com>",
+  "contributors": [
+    "paran3xus <paran3xus007@gmail.com>",
+    "Naptie <naptie@qq.com>"
+  ],
   "license": "GPL-3.0-only",
   "type": "module",
   "engines": {
@@ -30,7 +36,10 @@
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "dist:ghpages": "BUILD_PATH=/tyraria/ vite build && gh-pages -d dist",
-    "dist:cfpages": "BUILD_PATH=/ vite build && npx wrangler pages deploy dist"
+    "dist:cfpages": "BUILD_PATH=/ vite build && npx wrangler pages deploy dist",
+    "format": "prettier --write .",
+    "lint": "prettier --check . && eslint .",
+    "fl": "prettier --write . && eslint --fix ."
   },
   "dependencies": {
     "@codingame/monaco-vscode-api": "~20.1.1",
@@ -54,7 +63,7 @@
     "svelte": "^5.38.6",
     "svelte-check": "^4.3.1",
     "svelte-splitpanes": "^8.0.9",
-    "tinymist-web": "link:tinymist-web",
+    "tinymist": "link:tinymist",
     "vscode-languageclient": "^9.0.1",
     "vscode-languageserver": "^9.0.1"
   },
@@ -69,6 +78,9 @@
     "eslint-plugin-prettier": "^5.5.4",
     "gh-pages": "^6.3.0",
     "globals": "^16.3.0",
+    "prettier": "^3.4.2",
+    "prettier-plugin-svelte": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^4.1.12",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.41.0",

@@ -1,13 +1,13 @@
-import * as vscode from "vscode";
+import * as vscode from 'vscode';
 import {
   FileType,
   InMemoryFileSystemProvider,
-  registerFileSystemOverlay,
-} from "@codingame/monaco-vscode-files-service-override";
-import { URI } from "@codingame/monaco-vscode-api/vscode/vs/base/common/uri";
-import { Buffer } from "buffer";
-import { defaultEntryFilePath } from "./path-constants.mts";
-import { defaultWorkspaceUri } from "./uri-constants.mjs";
+  registerFileSystemOverlay
+} from '@codingame/monaco-vscode-files-service-override';
+import { URI } from '@codingame/monaco-vscode-api/vscode/vs/base/common/uri';
+import { Buffer } from 'buffer';
+import { defaultEntryFilePath } from './path-constants.mts';
+import { defaultWorkspaceUri } from './uri-constants.mjs';
 
 export class FileSystemProvider extends InMemoryFileSystemProvider {
   protected textEncoder = new TextEncoder();
@@ -37,7 +37,7 @@ export class FileSystemProvider extends InMemoryFileSystemProvider {
       atomic: false,
       unlock: false,
       create: true,
-      overwrite: true,
+      overwrite: true
     });
 
     if (open) {
@@ -47,9 +47,9 @@ export class FileSystemProvider extends InMemoryFileSystemProvider {
   }
 
   async createDirectory(uri: vscode.Uri) {
-    const segments = uri.path.split("/").slice(1, -1);
+    const segments = uri.path.split('/').slice(1, -1);
     for (let i = 0; i < segments.length; i++) {
-      const path = "/" + segments.slice(0, i + 1).join("/");
+      const path = '/' + segments.slice(0, i + 1).join('/');
       const dir = vscode.Uri.file(path);
       if (!(await this.fileExists(dir))) {
         await this.mkdir(dir);
@@ -65,14 +65,14 @@ export class FileSystemProvider extends InMemoryFileSystemProvider {
 
       return JSON.stringify(
         {
-          files: files,
+          files: files
         },
         null,
         2
       );
     } catch (error) {
-      console.error("Error reading directory files:", error);
-      return JSON.stringify({ version: "1.0", files: {} });
+      console.error('Error reading directory files:', error);
+      return JSON.stringify({ version: '1.0', files: {} });
     }
   }
 
@@ -91,7 +91,7 @@ export class FileSystemProvider extends InMemoryFileSystemProvider {
         if (type === FileType.File) {
           try {
             const fileContent = await this.readFile(fileUri);
-            const base64Content = Buffer.from(fileContent).toString("base64");
+            const base64Content = Buffer.from(fileContent).toString('base64');
             files[fullPath] = base64Content;
           } catch (error) {
             console.warn(`Failed to read file ${fullPath}:`, error);
@@ -109,21 +109,19 @@ export class FileSystemProvider extends InMemoryFileSystemProvider {
     try {
       const data = JSON.parse(jsonContent);
 
-      if (!data.files || typeof data.files !== "object") {
-        throw new Error("Invalid JSON format: missing files object");
+      if (!data.files || typeof data.files !== 'object') {
+        throw new Error('Invalid JSON format: missing files object');
       }
       for (const [filePath, base64Content] of Object.entries(data.files)) {
         try {
-          const fileContent = new Uint8Array(
-            Buffer.from(base64Content as string, "base64")
-          );
+          const fileContent = new Uint8Array(Buffer.from(base64Content as string, 'base64'));
           await this.addFileToWorkspace(filePath, fileContent, true);
         } catch (error) {
           console.warn(`Failed to restore file ${filePath}:`, error);
         }
       }
     } catch (error) {
-      console.error("Error restoring from JSON:", error);
+      console.error('Error restoring from JSON:', error);
       throw error;
     }
   }
@@ -132,13 +130,9 @@ export class FileSystemProvider extends InMemoryFileSystemProvider {
     await this.delete(defaultWorkspaceUri, {
       recursive: true,
       useTrash: false,
-      atomic: false,
+      atomic: false
     });
-    return this.addFileToWorkspace(
-      defaultEntryFilePath,
-      new Uint8Array(0),
-      true
-    );
+    return this.addFileToWorkspace(defaultEntryFilePath, new Uint8Array(0), true);
   }
 }
 
