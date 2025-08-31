@@ -1,79 +1,69 @@
-<template>
-  <div id="preview" ref="windowElem">
-    <div id="typst-container-top"></div>
-    <div id="typst-container-main" ref="outerElem">
-      <div id="typst-app" ref="hookedElem"></div>
-    </div>
-  </div>
-</template>
-<script setup>
-import {
-  BrowserMessageReader,
-  BrowserMessageWriter,
-} from "vscode-languageclient/browser";
-import { ref } from "vue";
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
 
-import * as vscode from "vscode";
-import { normalize } from "pathe";
-
-import { usePreviewComponent } from "./preview.mts";
-
-const props = defineProps({
-  reader: BrowserMessageReader,
-  writer: BrowserMessageWriter,
-});
-
-const hookedElem = ref(null);
-const windowElem = ref(null);
-const outerElem = ref(null);
-
-async function runLSPCommand(command, args) {
-  const request = {
-    jsonrpc: "2.0",
-    id: 1,
-    method: "workspace/executeCommand",
-    params: {
-      command: command,
-      arguments: args,
-    },
-  };
-  await props.writer.write(request);
+:root {
+  --vscode-font-size: 13px;
 }
 
-async function initPreview(path) {
-  const { initPreviewInner } = usePreviewComponent(
-    props.reader,
-    props.writer,
-    hookedElem,
-    windowElem,
-    outerElem
-  );
-
-  runLSPCommand("tinymist.doStartPreview", [[path]]);
-  await initPreviewInner();
-
-  vscode.window.onDidChangeTextEditorSelection(async (e) => {
-    if (e.kind != 2) {
-      return;
-    }
-    await runLSPCommand("tinymist.scrollPreview", [
-      "default_preview",
-      {
-        event: "panelScrollTo",
-        filepath: normalize(e.textEditor.document.fileName),
-        line: e.selections[0].active.line,
-        character: e.selections[0].active.character,
-      },
-    ]);
-  });
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: sans-serif;
 }
 
-defineExpose({
-  initPreview,
-});
-</script>
+.bg-base {
+  background-color: var(--vscode-panel-background);
+  border: 1px solid var(--vscode-panel-border);
+}
 
-<style>
+.bg-surface {
+  background-color: var(--vscode-editor-background);
+}
+
+.text-main {
+  color: var(--vscode-foreground);
+}
+
+.menu-btn-icon {
+  @apply mx-3 my-1 text-lg;
+}
+
+.splitpanes__splitter {
+  @apply relative !border-none;
+}
+
+.splitpanes--vertical > .splitpanes__splitter:before {
+  @apply -right-1 -left-1;
+}
+
+.splitpanes--horizontal > .splitpanes__splitter:before {
+  @apply -top-1 -bottom-1;
+}
+
+.splitpanes__splitter:before {
+  @apply absolute inset-0 z-[999] transition-[background-color] duration-300 content-[''];
+}
+
+.splitpanes__splitter:hover:before {
+  @apply bg-blue-500/60;
+}
+
+.splitpanes__splitter:active:before {
+  @apply bg-blue-500;
+}
+
+.splitpanes--vertical > .splitpanes__splitter {
+  @apply !w-0 !max-w-0 !min-w-0 hover:cursor-col-resize;
+}
+.splitpanes--horizontal > .splitpanes__splitter {
+  @apply !h-0 !max-h-0 !min-h-0 hover:cursor-row-resize;
+}
+
 #preview {
   height: 100%;
   display: flex;
@@ -88,7 +78,7 @@ defineExpose({
 #typst-container-main {
   flex: 1;
   overflow-y: auto;
-  overflow-x: auto;
+  overflow-x: hidden;
   position: relative;
 }
 
@@ -228,4 +218,3 @@ path.outline_glyph {
     opacity: 0;
   }
 }
-</style>

@@ -1,11 +1,7 @@
-import { Observable } from "rxjs";
-import { BrowserMessageWriter } from "vscode-languageclient/browser";
-import {
-  TypstPreviewMessage,
-  TypstPreviewMessageContent,
-  TypstPreviewPageInner,
-} from "./types";
-import { Buffer } from "buffer";
+import { Observable } from 'rxjs';
+import { BrowserMessageWriter } from 'vscode-languageclient/browser';
+import { TypstPreviewMessage, TypstPreviewMessageContent, TypstPreviewPageInner } from './types';
+import { Buffer } from 'buffer';
 
 export function createResizeObservable(element: HTMLElement) {
   return new Observable((observer) => {
@@ -27,39 +23,37 @@ export async function sendWebSocketMessage(
   data: string | ArrayBuffer
 ): Promise<void> {
   const content: TypstPreviewMessageContent =
-    typeof data === "string"
+    typeof data === 'string'
       ? {
-          format: "text",
-          data: data,
+          format: 'text',
+          data: data
         }
       : {
-          format: "binary",
-          data: Buffer.from(data).toString("base64"),
+          format: 'binary',
+          data: Buffer.from(data).toString('base64')
         };
 
-  console.log("Webview -> Preview:", content);
+  console.log('Webview -> Preview:', content);
   const msg: TypstPreviewMessage = {
-    jsonrpc: "2.0",
-    method: "typst-preview",
+    jsonrpc: '2.0',
+    method: 'typst-preview',
     params: {
-      content,
-    },
+      content
+    }
   };
   await writer.write(msg);
 }
 
 /** The strategy to set invert colors, see editors/vscode/package.json for enum descriptions */
-export const INVERT_COLORS_STRATEGY = ["never", "auto", "always"] as const;
+export const INVERT_COLORS_STRATEGY = ['never', 'auto', 'always'] as const;
 
-export function isTypstPreviewMessage(
-  message: any
-): message is TypstPreviewMessage {
+export function isTypstPreviewMessage(message: any): message is TypstPreviewMessage {
   return (
     message &&
-    typeof message === "object" &&
-    "method" in message &&
-    message.method === "typst-preview" &&
-    "params" in message
+    typeof message === 'object' &&
+    'method' in message &&
+    message.method === 'typst-preview' &&
+    'params' in message
   );
 }
 
@@ -69,9 +63,9 @@ export function isTypstPreviewPageInner(
   return !!(
     element &&
     element instanceof SVGElement &&
-    element.classList.contains("typst-page-inner") &&
-    element.getAttribute("data-page-number") !== null &&
-    "transform" in element
+    element.classList.contains('typst-page-inner') &&
+    element.getAttribute('data-page-number') !== null &&
+    'transform' in element
   );
 }
 
@@ -89,7 +83,7 @@ export const ignoredEvent = (function () {
 
   return function (callback: () => void, delay: number, id: string) {
     time = new Date().getTime();
-    id = id || "ignored event";
+    id = id || 'ignored event';
     diff = last[id] ? time - last[id] : time;
 
     if (diff > delay) {
@@ -102,9 +96,7 @@ export const ignoredEvent = (function () {
 export function getRelatedElements(event: any) {
   let relatedElements = event.target.relatedElements;
   if (relatedElements === undefined || relatedElements === null) {
-    relatedElements = event.target.relatedElements = searchIntersections(
-      event.target
-    );
+    relatedElements = event.target.relatedElements = searchIntersections(event.target);
   }
   return relatedElements;
 }
@@ -134,14 +126,14 @@ function searchIntersections(root: Element) {
   let parent = undefined,
     current = root;
   while (current) {
-    if (current.classList.contains("typst-group")) {
+    if (current.classList.contains('typst-group')) {
       parent = current;
       break;
     }
     current = current.parentElement!;
   }
   if (!parent) {
-    console.log("no group found");
+    console.log('no group found');
     return;
   }
   const group = parent;

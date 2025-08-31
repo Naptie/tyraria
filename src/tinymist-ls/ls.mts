@@ -1,15 +1,15 @@
-import workerUrl from "./ls-worker.mjs?worker&url";
+import workerUrl from './ls-worker.mjs?worker&url';
 import {
   BrowserMessageReader,
   BrowserMessageWriter,
-  RequestType,
-} from "vscode-languageclient/browser";
-import * as vscode from "vscode";
-import { Buffer } from "buffer";
-import { MonacoLanguageClient } from "monaco-languageclient";
-import { FileSystemProvider } from "../fs-provider/fs-provider.mts";
-import { TarFileType, TarReader } from "@gera2ld/tarjs";
-import pako from "pako";
+  RequestType
+} from 'vscode-languageclient/browser';
+import * as vscode from 'vscode';
+import { Buffer } from 'buffer';
+import { MonacoLanguageClient } from 'monaco-languageclient';
+import { FileSystemProvider } from '../fs-provider/fs-provider.mts';
+import { TarFileType, TarReader } from '@gera2ld/tarjs';
+import pako from 'pako';
 
 export class TinymistLS {
   public worker: Worker | null = null;
@@ -22,10 +22,10 @@ export class TinymistLS {
   constructor() {}
   async startWorker() {
     this.worker = new Worker(workerUrl, {
-      type: "module",
-      name: "Tinymist LS",
+      type: 'module',
+      name: 'Tinymist LS'
     });
-    await this.waitWorkerMessage("serverWorkerInited", 1000 * 60);
+    await this.waitWorkerMessage('serverWorkerInited', 1000 * 60);
     return this.worker;
   }
   async resolvePackage(url: string, packageRoot: string) {
@@ -62,47 +62,40 @@ export class TinymistLS {
       await this.fsProvider?.addFileToWorkspace(fileUri, fileContent, false);
     });
 
-    console.log("Resolved!");
+    console.log('Resolved!');
   }
   async loadWasm() {
-    this.sendWorkerMessage("loadWASM", null);
-    await this.waitWorkerMessage("WASMLoaded", 1000 * 60 * 3);
+    this.sendWorkerMessage('loadWASM', null);
+    await this.waitWorkerMessage('WASMLoaded', 1000 * 60 * 3);
   }
   async loadFonts(fonts: any[]) {
-    this.sendWorkerMessage("loadFonts", {
-      fonts: fonts,
+    this.sendWorkerMessage('loadFonts', {
+      fonts: fonts
     });
-    await this.waitWorkerMessage("fontsLoaded", 1000 * 60);
+    await this.waitWorkerMessage('fontsLoaded', 1000 * 60);
   }
   async startTinymistServer() {
     this.reader = new BrowserMessageReader(this.worker);
     this.writer = new BrowserMessageWriter(this.worker);
     this.reader.listen((message) => {
-      if ("method" in message && message.method == "tmLog") {
-        console.log("[Tinymist WASM Log]", message.params.data);
+      if ('method' in message && message.method == 'tmLog' && 'params' in message) {
+        console.log('[Tinymist WASM Log]', (message as any).params.data);
         return;
       }
-      console.log("LSP -> Editor:", message);
+      console.log('LSP -> Editor:', message);
     });
 
     this.reader.listen(async (message) => {
-      if (
-        "method" in message &&
-        message.method === "worker" &&
-        "params" in message
-      ) {
+      if ('method' in message && message.method === 'worker' && 'params' in message) {
         const params: any = message.params;
-        if (params.type === "resolvePackage") {
-          await this.resolvePackage(
-            params.content.url,
-            params.content.packageRoot
-          );
+        if (params.type === 'resolvePackage') {
+          await this.resolvePackage(params.content.url, params.content.packageRoot);
         }
       }
     });
 
-    this.sendWorkerMessage("start", null);
-    await this.waitWorkerMessage("serverWorkerReady", 1000 * 60);
+    this.sendWorkerMessage('start', null);
+    await this.waitWorkerMessage('serverWorkerReady', 1000 * 60);
 
     return { reader: this.reader, writer: this.writer };
   }
@@ -115,20 +108,16 @@ export class TinymistLS {
       vscode.workspace.fs.readFile(uri).then(
         (data): FileResult => {
           return {
-            type: "ok",
-            content: Buffer.from(data).toString("base64"),
+            type: 'ok',
+            content: Buffer.from(data).toString('base64')
           } as const;
         },
         (err: any): FileResult => {
-          console.error("Failed to read file", uri, err);
-          return { type: "err", error: err.message as string } as const;
+          console.error('Failed to read file', uri, err);
+          return { type: 'err', error: err.message as string } as const;
         }
       );
-    const registerHasRead = (
-      uri: string,
-      currentClock: number,
-      content?: FileResult
-    ) => {
+    const registerHasRead = (uri: string, currentClock: number, content?: FileResult) => {
       const previous = hasRead.get(uri);
       if (previous && previous[0] >= currentClock) {
         return false;
@@ -142,8 +131,8 @@ export class TinymistLS {
         return this.watcher;
       }
 
-      console.log("registering watcher");
-      this.watcher = vscode.workspace.createFileSystemWatcher("**/*");
+      console.log('registering watcher');
+      this.watcher = vscode.workspace.createFileSystemWatcher('**/*');
 
       const watchRead = async (currentClock: number, uri: vscode.Uri) => {
         // this.sendWorkerMessage("scheduleAsync", null);
@@ -165,37 +154,35 @@ export class TinymistLS {
         this.lsClient?.sendRequest(fsChange, {
           inserts,
           removes,
-          isSync: false,
+          isSync: false
         });
       };
 
       this.watcher?.onDidChange((uri) => {
         const currentClock = watchClock++;
-        console.log("fs change", uri, currentClock);
+        console.log('fs change', uri, currentClock);
         watchRead(currentClock, uri);
       });
       this.watcher?.onDidCreate((uri) => {
         const currentClock = watchClock++;
-        console.log("fs create", uri, currentClock);
+        console.log('fs create', uri, currentClock);
         watchRead(currentClock, uri);
       });
       this.watcher?.onDidDelete((uri) => {
         const currentClock = watchClock++;
-        console.log("fs delete", uri, currentClock);
+        console.log('fs delete', uri, currentClock);
         watchRead(currentClock, uri);
       });
 
       return this.watcher;
     };
 
-    this.lsClient?.onRequest("tinymist/fs/watch", (params: FsWatchRequest) => {
+    this.lsClient?.onRequest('tinymist/fs/watch', (params: FsWatchRequest) => {
       const currentClock = watchClock++;
       console.log(
-        "fs watch request",
+        'fs watch request',
         params,
-        vscode.workspace.workspaceFolders?.map((folder) =>
-          folder.uri.toString()
-        )
+        vscode.workspace.workspaceFolders?.map((folder) => folder.uri.toString())
       );
 
       const filesToRead = new Set<string>();
@@ -215,33 +202,26 @@ export class TinymistLS {
         }
       }
       const removes: string[] = params.removes.filter((path) => {
-        return (
-          filesDeleted.has(path) &&
-          registerHasRead(path, currentClock, undefined)
-        );
+        return filesDeleted.has(path) && registerHasRead(path, currentClock, undefined);
       });
 
       (async () => {
         const paths = Array.from(filesToRead);
-        const readFiles = await Promise.all(
-          paths.map((path) => tryRead(vscode.Uri.parse(path)))
-        );
+        const readFiles = await Promise.all(paths.map((path) => tryRead(vscode.Uri.parse(path))));
 
         registerWatcher();
 
         const inserts: FileChange[] = paths
           .map((path, idx) => ({
             uri: path,
-            content: readFiles[idx],
+            content: readFiles[idx]
           }))
-          .filter((change) =>
-            registerHasRead(change.uri, currentClock, change.content)
-          );
+          .filter((change) => registerHasRead(change.uri, currentClock, change.content));
 
         this.lsClient?.sendRequest(fsChange, {
           inserts,
           removes,
-          isSync: false,
+          isSync: false
         });
       })();
     });
@@ -249,11 +229,11 @@ export class TinymistLS {
 
   sendWorkerMessage(type: string, content: any) {
     this.worker?.postMessage({
-      method: "worker",
+      method: 'worker',
       params: {
         type: type,
-        content: content,
-      },
+        content: content
+      }
     });
   }
   _waitWorkerMessageInner(
@@ -265,28 +245,22 @@ export class TinymistLS {
       const onMessage = (e: any) => {
         if (!condition(e.data)) return;
 
-        this.worker?.removeEventListener("message", onMessage);
+        this.worker?.removeEventListener('message', onMessage);
         resolve(e.data);
         clearTimeout(workerTimeout);
       };
 
       const workerTimeout = setTimeout(() => {
-        this.worker?.removeEventListener("message", onMessage);
-        reject(
-          new Error(
-            errorMessage || "Waiting for worker message failed: timeout"
-          )
-        );
+        this.worker?.removeEventListener('message', onMessage);
+        reject(new Error(errorMessage || 'Waiting for worker message failed: timeout'));
       }, timeout);
 
-      this.worker?.addEventListener("message", onMessage);
+      this.worker?.addEventListener('message', onMessage);
     });
   }
   waitWorkerMessage(type: string, timeout: number = 5000) {
     const condition = (data: WorkerMessage): boolean => {
-      return (data.method === "worker" &&
-        data.params &&
-        data.params.type === type) as boolean;
+      return (data.method === 'worker' && data.params && data.params.type === type) as boolean;
     };
 
     const errorMessage = `Waiting for worker message ${type} failed: timeout`;
@@ -301,7 +275,7 @@ interface FsWatchRequest {
 }
 
 interface FileResult {
-  type: "ok" | "err";
+  type: 'ok' | 'err';
   content?: string;
   error?: string;
 }
@@ -319,9 +293,7 @@ export interface FsChangeParams {
   isSync: boolean;
 }
 
-const fsChange = new RequestType<FsChangeParams, void, void>(
-  "tinymist/fsChange"
-);
+const fsChange = new RequestType<FsChangeParams, void, void>('tinymist/fsChange');
 
 export interface WorkerMessage {
   method: string;

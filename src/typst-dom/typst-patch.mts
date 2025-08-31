@@ -12,22 +12,22 @@ export const enum TypstPatchAttrs {
   ///
   /// At most time, the data-tid is exactly their content hash.
   /// A disambiguation suffix is added when the content hash is not unique.
-  Tid = "data-tid",
+  Tid = 'data-tid',
 
   /// The data-reuse attribute is used to this element is reused from specified element.
   /// The attribute content is the data-tid of the element.
-  ReuseFrom = "data-reuse-from",
+  ReuseFrom = 'data-reuse-from',
 
   /// The data-bad-equality attribute is used to indicate that the element
   /// doesn't have a good equality on hash.
-  BadEquality = "data-bad-equality",
+  BadEquality = 'data-bad-equality',
 
   /// The data-dummy hints that this page is a dummy page (placeholder for a real page).
-  Dummy = "data-dummy",
+  Dummy = 'data-dummy'
 }
 
 export function isDummyPatchElem(elem: Element) {
-  return elem.getAttribute(TypstPatchAttrs.Dummy) === "1";
+  return elem.getAttribute(TypstPatchAttrs.Dummy) === '1';
 }
 
 /// Compare two elements by their data-tid attribute.
@@ -72,10 +72,7 @@ export function equalPatchElem(prev: ElementChildren, next: ElementChildren) {
 /// To remove unused resources, An extra remove inst can remove a specify element
 ///
 /// Example5: resource:[o1, o2] -> <reuse o1> <append t1> <remove o2> -> [o1, t1] and remove o2
-export type TargetViewInstruction<T> =
-  | ["append", T]
-  | ["reuse", number]
-  | ["remove", number];
+export type TargetViewInstruction<T> = ['append', T] | ['reuse', number] | ['remove', number];
 
 /// The recursive patch operation must be applied to this two element.
 export type PatchPair<T> = [T /* origin */, T /* target */];
@@ -102,7 +99,7 @@ export function interpretTargetView<T extends ElementChildren, U extends T = T>(
 
     const data_tid = prevChild.getAttribute(TypstPatchAttrs.Tid);
     if (!data_tid) {
-      targetView.push(["remove", i]);
+      targetView.push(['remove', i]);
       continue;
     }
 
@@ -122,16 +119,16 @@ export function interpretTargetView<T extends ElementChildren, U extends T = T>(
 
     const nextDataTid = nextChild.getAttribute(TypstPatchAttrs.Tid);
     if (!nextDataTid) {
-      throw new Error("not data tid for reusing g element for " + nextDataTid);
+      throw new Error('not data tid for reusing g element for ' + nextDataTid);
     }
 
     const reuseTargetTid = nextChild.getAttribute(TypstPatchAttrs.ReuseFrom);
     if (!reuseTargetTid) {
-      targetView.push(["append", nextChild]);
+      targetView.push(['append', nextChild]);
       continue;
     }
     if (!availableOwnedResource.has(reuseTargetTid)) {
-      targetView.push(["append", nextChild]);
+      targetView.push(['append', nextChild]);
       continue;
     }
 
@@ -142,24 +139,24 @@ export function interpretTargetView<T extends ElementChildren, U extends T = T>(
     if (prevIdx === undefined) {
       /// clean one is reused directly
       if (nextDataTid === reuseTargetTid && isPatchingSvg) {
-        console.log("reuse directly", nextChild);
+        console.log('reuse directly', nextChild);
         const clonedNode = rsrc[0].cloneNode(true) as U;
         toPatch.push([clonedNode, nextChild]);
-        targetView.push(["append", clonedNode]);
+        targetView.push(['append', clonedNode]);
       } else {
-        targetView.push(["append", nextChild]);
+        targetView.push(['append', nextChild]);
       }
       continue;
     }
 
     /// dirty one should be patched and reused
     toPatch.push([originChildren[prevIdx] as U, nextChild]);
-    targetView.push(["reuse", prevIdx]);
+    targetView.push(['reuse', prevIdx]);
   }
 
   for (const [_, unusedIndices] of availableOwnedResource.values()) {
     for (const unused of unusedIndices) {
-      targetView.push(["remove", unused]);
+      targetView.push(['remove', unused]);
     }
   }
 
@@ -176,9 +173,9 @@ export function interpretTargetView<T extends ElementChildren, U extends T = T>(
 /// Example3: dom:[o0, o1, o2, o3, o4] -> <swap_in at 3, 0> -> [o1, o2, o0, o3]
 /// Example4: dom:[o0, o1, o2] -> <remove at 1> -> [o0, o2]
 export type OriginViewInstruction<T> =
-  | ["insert", number, T]
-  | ["swap_in", number, number]
-  | ["remove", number];
+  | ['insert', number, T]
+  | ['swap_in', number, number]
+  | ['remove', number];
 
 /// Change a sequence of target view instructions to the origin ones.
 /// Currently, it applies a greedy strategy.
@@ -187,10 +184,7 @@ export type OriginViewInstruction<T> =
 /// + Finally, it inserts the extra elements.
 ///
 /// Some better strategy would help and be implemented in future.
-export function changeViewPerspective<
-  T extends ElementChildren,
-  U extends T = T
->(
+export function changeViewPerspective<T extends ElementChildren, U extends T = T>(
   originChildren: T[],
   targetView: TargetViewInstruction<U>[],
   tIsU = (_x: T): _x is U => true
@@ -200,7 +194,7 @@ export function changeViewPerspective<
   /// see remove instructions
   let removeIndices: number[] = [];
   for (const inst of targetView) {
-    if (inst[0] === "remove") {
+    if (inst[0] === 'remove') {
       removeIndices.push(inst[1]);
     }
   }
@@ -216,7 +210,7 @@ export function changeViewPerspective<
         r++;
       }
       removeShift.push(undefined);
-      originView.push(["remove", removeIndices[i] - i]);
+      originView.push(['remove', removeIndices[i] - i]);
       r++;
     }
     while (r <= originChildren.length) {
@@ -241,7 +235,7 @@ export function changeViewPerspective<
   /// converted append instructions.
   const swapIns: number[] = [];
   /// converted append instructions.
-  const inserts: ["insert", number, U][] = [];
+  const inserts: ['insert', number, U][] = [];
 
   /// apply append and reuse instructions till the offset of origin sequence.
   const interpretOriginView = (_off: number) => {
@@ -251,11 +245,11 @@ export function changeViewPerspective<
       const done = false;
       const inst = targetView[targetViewCursor];
       switch (inst[0]) {
-        case "append":
-          inserts.push(["insert", appendOffset, inst[1]]);
+        case 'append':
+          inserts.push(['insert', appendOffset, inst[1]]);
           appendOffset++;
           break;
-        case "reuse": {
+        case 'reuse': {
           const target_off = getShift(inst[1]);
           swapIns.push(target_off);
           appendOffset++;
@@ -309,7 +303,7 @@ export function changeViewPerspective<
           simulated.splice(i + 1, 0, off);
         }
         if (j !== i) {
-          originView.push(["swap_in", i, j]);
+          originView.push(['swap_in', i, j]);
           // console.log("swap_in then", j, i, simulated);
         }
         break;
@@ -327,17 +321,17 @@ export function runOriginViewInstructions(
   // console.log("interpreted origin view", originView);
   for (const [op, off, fr] of originView) {
     switch (op) {
-      case "insert":
+      case 'insert':
         prev.insertBefore(fr, prev.children[off]);
         break;
-      case "swap_in":
+      case 'swap_in':
         prev.insertBefore(prev.children[fr], prev.children[off]);
         break;
-      case "remove":
+      case 'remove':
         prev.children[off].remove();
         break;
       default:
-        throw new Error("unknown op " + op);
+        throw new Error('unknown op ' + op);
     }
   }
 }
