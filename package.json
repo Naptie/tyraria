@@ -9,7 +9,7 @@
   "exports": {
     ".": {
       "types": "./src/lib/index.d.ts",
-      "svelte": "./src/lib/index.js",
+      "svelte": "./dist/tyraria.js",
       "import": "./dist/tyraria.js",
       "require": "./dist/tyraria.js"
     }
