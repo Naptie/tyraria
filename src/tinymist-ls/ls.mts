@@ -1,5 +1,4 @@
-// import workerUrl from "./ls-worker.mjs?worker&url";
-const workerUrl = null; // TODO: Fix worker import
+import workerUrl from "./ls-worker.mjs?worker&url";
 import {
   BrowserMessageReader,
   BrowserMessageWriter,

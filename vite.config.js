@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from "node:url";
-import { sveltekit } from '@sveltejs/kit/vite';
+import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
 import importMetaUrlPlugin from "@codingame/esbuild-import-meta-url-plugin";
 import { assetsLoader } from "./utils/load-assets.mjs";
@@ -85,7 +85,7 @@ export default defineConfig({
   },
   server: {
     fs: {
-      allow: [".", "../../rust/tinymist/crates/tinymist/pkg/"],
+      allow: [".", "../tinymist/crates/tinymist/pkg/"],
     },
   },
 });
