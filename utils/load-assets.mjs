@@ -70,7 +70,7 @@ async function generateVirtualModule(options) {
 
   const imports = files
     .map((file, index) => {
-      const absolutePath = path.resolve(file).replace(/\\/g, '/');
+      const absolutePath = path.resolve(file).replaceAll(/\\/g, '\\\\');
       return `import ${prefix}${index}Url from '${absolutePath}${suffix}'`;
     })
     .join('\n');

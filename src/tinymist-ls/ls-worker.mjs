@@ -74,12 +74,13 @@ class TinymistServer {
       console.log(`tinymist ${TinymistLanguageServer.version()} wasm is loaded!`);
       sendWorkerMessage('WASMLoaded', null);
     } catch (e) {
-      console.err(e);
+      console.error(e);
     }
   }
 
   initializePackageRegistry() {
     this.resolvePackage = (spec) => {
+      console.log("resolving package", spec);
       const packageRoot = `${defaultPackagePath}/${spec.namespace}/${spec.name}/${spec.version}`;
       const url = `https://packages.typst.org/${spec.namespace}/${spec.name}-${spec.version}.tar.gz`;
 

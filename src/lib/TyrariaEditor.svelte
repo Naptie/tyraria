@@ -26,7 +26,11 @@
   import TypstPreview from './TypstPreview.svelte';
   import LoadingScreen from './LoadingScreen.svelte';
   import { createFileSystemProvider } from '../fs-provider/fs-provider.mts';
-  import { defaultEntryFilePath, defaultWorkspacePath } from '../fs-provider/path-constants.mjs';
+  import {
+    defaultEntryFilePath,
+    defaultHiddenFolderName,
+    defaultWorkspacePath
+  } from '../fs-provider/path-constants.mjs';
   import { defaultEntryFileUri, defaultWorkspaceUri } from '../fs-provider/uri-constants.mjs';
   import resourceLoader from '../resource-loader.mjs';
   import { TinymistLS } from '../tinymist-ls/ls.mts';
@@ -219,7 +223,10 @@
             'editor.experimental.asyncTokenization': false,
             'vitest.disableWorkspaceWarning': true,
             'editor.codeLens': false,
-            'files.autoSave': AutoSaveConfiguration.OFF
+            'files.autoSave': AutoSaveConfiguration.OFF,
+            'files.exclude': {
+              [defaultHiddenFolderName]: true
+            }
           })
         },
         viewsConfig: {
@@ -301,6 +308,7 @@
         workspaceFile.data,
         false
       );
+      console.log(`workspace: loaded ${workspaceFile.path} to workspace`);
       if (workspaceFile.path === defaultEntryFilePath) {
         res = doc;
       }
