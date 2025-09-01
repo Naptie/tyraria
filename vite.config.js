@@ -82,5 +82,10 @@ export default defineConfig({
   worker: {
     plugins: () => [assetsLoader()],
     format: 'es'
+  },
+  server: {
+    fs: {
+      strict: false
+    }
   }
 });
