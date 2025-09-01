@@ -100,9 +100,7 @@ export default defineConfig(({ mode }) => {
             'process',
             // Externalize virtual imports
             'virtual:fonts',
-            'virtual:default-workspace',
-            // Externalize worker imports
-            /.*\?worker&url$/
+            'virtual:default-workspace'
           ],
           output: {
             globals: {
