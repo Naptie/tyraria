@@ -24,4 +24,4 @@ export interface TyrariaVitePluginOptions {
  * @param options - Configuration options
  * @returns Vite plugin object
  */
-export declare function tyrariaVitePlugin(options?: TyrariaVitePluginOptions): Plugin;
+export declare function tyraria(options?: TyrariaVitePluginOptions): Plugin;

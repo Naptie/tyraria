@@ -14,9 +14,9 @@
       "require": "./dist/tyraria.js"
     },
     "./vite": {
-      "types": "./vite.d.ts",
-      "import": "./vite.js",
-      "require": "./vite.js"
+      "types": "./src/lib/vite-plugin.d.ts",
+      "import": "./src/lib/vite-plugin.js",
+      "require": "./src/lib/vite-plugin.js"
     }
   },
   "files": [

@@ -121,7 +121,7 @@ async function generateVirtualModule(options) {
  * @param {string} options.workspace.dir - Directory path containing default workspace files (relative to vite.config.js)
  * @returns {Object} Vite plugin object
  */
-export function tyrariaVitePlugin(options = {}) {
+export function tyraria(options = {}) {
   const { fonts = {}, workspace = {} } = options;
 
   return {
