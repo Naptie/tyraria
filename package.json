@@ -12,11 +12,18 @@
       "svelte": "./dist/tyraria.js",
       "import": "./dist/tyraria.js",
       "require": "./dist/tyraria.js"
+    },
+    "./vite": {
+      "types": "./vite.d.ts",
+      "import": "./vite.js",
+      "require": "./vite.js"
     }
   },
   "files": [
     "dist",
-    "src/lib"
+    "src/lib",
+    "vite.js",
+    "vite.d.ts"
   ],
   "repository": "https://github.com/Naptie/tyraria.git",
   "author": "paran3xus <paran3xus007@gmail.com>",
