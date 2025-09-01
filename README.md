@@ -7,6 +7,41 @@ Try it now: https://tyraria.typs.town/
 > [!NOTE]
 > It takes time to load fonts on your first visit.
 
+## Usage
+
+### As a Vite Plugin
+
+Tyraria provides a Vite plugin for handling virtual modules for fonts and workspace files. Import it from the separate entry point to avoid client-side code execution:
+
+```js
+// vite.config.js
+import { tyraria } from 'tyraria/vite'
+
+export default defineConfig({
+  plugins: [
+    tyraria({
+      fonts: {
+        dir: 'src/assets/fonts',           // Directory containing font files
+        urls: ['https://example.com/font.woff2'] // Optional: remote font URLs
+      },
+      workspace: {
+        dir: 'src/assets/default-workspace' // Directory containing default workspace files
+      }
+    })
+  ]
+})
+```
+
+This provides virtual modules:
+- `virtual:fonts` - Array of font files with `getData()` method
+- `virtual:default-workspace` - Array of workspace files with `getData()` method
+
+### As Svelte Components
+
+```js
+import { TyrariaEditor, TypstPreview, LoadingScreen } from 'tyraria'
+```
+
 ## Current Status:
 
 - [x] Monaco Editor basic editing functionality
