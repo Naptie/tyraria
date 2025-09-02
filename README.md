@@ -2,44 +2,24 @@
 
 This is `tyraria`, a project that attempts to recreate the online editing experience of [typst.app]("https://typst.app/") based on [tinymist]("https://github.com/myriad-dreamin/tinymist") and [typst.ts]("https://github.com/Myriad-Dreamin/typst.ts").
 
-Try it now: https://tyraria.typs.town/
+Try it now: https://tyraria.typst.dev/
 
 > [!NOTE]
 > It takes time to load fonts on your first visit.
 
 ## Usage
 
-### As a Vite Plugin
-
-Tyraria provides a Vite plugin for handling virtual modules for fonts and workspace files. Import it from the separate entry point to avoid client-side code execution:
-
 ```js
-// vite.config.js
-import { tyraria } from 'tyraria/vite'
+<script>
+  import { TyrariaEditor } from 'tyraria';
+</script>
 
-export default defineConfig({
-  plugins: [
-    tyraria({
-      fonts: {
-        dir: 'src/assets/fonts',           // Directory containing font files
-        urls: ['https://example.com/font.woff2'] // Optional: remote font URLs
-      },
-      workspace: {
-        dir: 'src/assets/default-workspace' // Directory containing default workspace files
-      }
-    })
-  ]
-})
-```
-
-This provides virtual modules:
-- `virtual:fonts` - Array of font files with `getData()` method
-- `virtual:default-workspace` - Array of workspace files with `getData()` method
-
-### As Svelte Components
-
-```js
-import { TyrariaEditor, TypstPreview, LoadingScreen } from 'tyraria'
+<TyrariaEditor
+  workspaceInput={{ '/main.typ': 'SGVsbG8gd29ybGQh' }}
+  onWorkspaceOutput={({ files }) => {
+    console.log('Received workspace files:', files);
+  }}
+/>;
 ```
 
 ## Current Status:
