@@ -388,7 +388,7 @@
 <LoadingScreen />
 
 {#if resourcesLoaded}
-  <div class="flex h-screen w-full flex-col">
+  <div class="flex h-full w-full flex-col">
     <div class="hidden">
       <button onclick={doPreview}>do preview</button>
       <button onclick={printMain}>print main</button>

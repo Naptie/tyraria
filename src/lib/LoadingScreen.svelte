@@ -83,7 +83,7 @@
 
 {#if !allLoaded}
   <div
-    class="manual-bg-base fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center font-mono"
+    class="manual-bg-base fixed inset-0 z-[9999] flex h-full w-full items-center justify-center font-mono"
   >
     <div class="w-[90%] max-w-2xl text-center">
       <h2 class="manual-text-main mb-8 text-2xl">Loading Resources...</h2>
