@@ -483,3 +483,214 @@
     </div>
   </div>
 {/if}
+
+<style lang="postcss">
+  @reference "tailwindcss";
+
+  :global(html) {
+    @apply overflow-clip;
+  }
+
+  .bg-base {
+    background-color: var(--vscode-panel-background);
+    border: 1px solid var(--vscode-panel-border);
+  }
+
+  .bg-surface {
+    background-color: var(--vscode-editor-background);
+  }
+
+  .text-main {
+    color: var(--vscode-foreground);
+  }
+
+  .menu-btn-icon {
+    @apply mx-3 my-1 text-lg;
+  }
+
+  :global(.splitpanes__splitter) {
+    @apply relative !border-none;
+  }
+
+  :global(.splitpanes--vertical > .splitpanes__splitter:before) {
+    @apply -right-1 -left-1;
+  }
+
+  :global(.splitpanes--horizontal > .splitpanes__splitter:before) {
+    @apply -top-1 -bottom-1;
+  }
+
+  :global(.splitpanes__splitter:before) {
+    @apply absolute inset-0 z-[999] transition-[background-color] duration-300 content-[''];
+  }
+
+  :global(.splitpanes__splitter:hover:before) {
+    @apply bg-blue-500/60;
+  }
+
+  :global(.splitpanes__splitter:active:before) {
+    @apply bg-blue-500;
+  }
+
+  :global(.splitpanes--vertical > .splitpanes__splitter) {
+    @apply !w-0 !max-w-0 !min-w-0 hover:cursor-col-resize;
+  }
+  :global(.splitpanes--horizontal > .splitpanes__splitter) {
+    @apply !h-0 !max-h-0 !min-h-0 hover:cursor-row-resize;
+  }
+
+  :global(#preview) {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    cursor: grab;
+  }
+
+  :global(#typst-container-top) {
+    z-index: 1;
+  }
+
+  :global(#typst-container-main) {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  :global(#typst-app) {
+    width: fit-content;
+    margin: 0;
+    transform-origin: 0 0;
+    background-color: #2b2b2b;
+  }
+
+  :global(#typst-app.invert-colors) {
+    filter: invert(0.933333) hue-rotate(180deg);
+  }
+
+  :global(#typst-app.invert-colors .typst-image) {
+    filter: invert(0) hue-rotate(0deg);
+    transition: filter 0.1s ease-in-out;
+  }
+
+  :global(#typst-app.invert-colors .typst-image:hover),
+  :global(#typst-app.invert-colors.normal-image .typst-image) {
+    filter: invert(1) hue-rotate(180deg);
+  }
+
+  :global(.typst-doc) {
+    fill: #2b2b2b;
+  }
+
+  :global(.hide-scrollbar-x) {
+    overflow-x: hidden;
+  }
+
+  :global(.hide-scrollbar-y) {
+    overflow-y: hidden;
+  }
+
+  :global(.typst-text) {
+    pointer-events: bounding-box;
+    cursor: text;
+  }
+
+  :global(.tsel span),
+  :global(.tsel) {
+    left: 0;
+    position: fixed;
+    text-align: justify;
+    white-space: pre;
+    width: 100%;
+    height: 100%;
+    text-align-last: justify;
+    color: transparent;
+  }
+
+  :global(.tsel span::-moz-selection),
+  :global(.tsel::-moz-selection) {
+    color: transparent;
+    background: #7db9dea0;
+  }
+
+  :global(.tsel span::selection),
+  :global(.tsel::selection) {
+    color: transparent;
+    background: #7db9dea0;
+  }
+
+  :global(.pseudo-link) {
+    fill: transparent;
+    cursor: pointer;
+    pointer-events: all;
+  }
+
+  :global(.image_glyph image),
+  :global(.outline_glyph path),
+  :global(path.outline_glyph) {
+    transform: matrix(1, 0, 0, 1, var(--o), 0);
+  }
+
+  :global(.outline_glyph path),
+  :global(path.outline_glyph) {
+    fill: var(--glyph_fill);
+    stroke: var(--glyph_stroke);
+  }
+
+  :global(.hover .typst-text) {
+    --glyph_fill: #66bab7;
+    --glyph_stroke: #66bab7;
+  }
+
+  :global(.typst-text:hover) {
+    --glyph_fill: #f75c2f;
+    --glyph_stroke: #f75c2f;
+  }
+
+  :global(.typst-jump-ripple),
+  :global(.typst-debug-react-ripple) {
+    width: 0;
+    height: 0;
+    background-color: transparent;
+    position: absolute;
+    border-radius: 50%;
+  }
+
+  :global(.typst-jump-ripple) {
+    border: 2px solid #66bab7;
+  }
+
+  :global(.typst-debug-react-ripple) {
+    border: 1px solid #cb1b45;
+  }
+
+  @keyframes typst-jump-ripple-effect {
+    to {
+      width: 10vw;
+      height: 10vw;
+      opacity: 0.01;
+      margin: -5vw;
+    }
+  }
+
+  @keyframes typst-debug-react-ripple-effect {
+    to {
+      width: 3vw;
+      height: 3vw;
+      opacity: 0.1;
+      margin: -1.5vw;
+    }
+  }
+
+  :global(.typst-svg-cursor) {
+    /* https://www.elevenforum.com/t/change-text-cursor-blink-rate-in-windows-11.12409/ */
+    /* 1.2 seconds per blink is the default value on gtk and the slowest value on windows */
+    animation: 1.2s blink step-start infinite;
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+</style>
