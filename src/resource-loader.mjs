@@ -1,4 +1,5 @@
 import { resolve } from 'pathe';
+import { Buffer } from 'buffer';
 import { fetchFromPastebin } from './pastebin';
 import { defaultWorkspacePath } from './fs-provider/path-constants.mjs';
 
@@ -109,11 +110,30 @@ class ResourceLoader {
       this.updateProgress('workspaceFiles', 10);
 
       if (code) {
-        const pastebinFiles = await fetchFromPastebin(code);
-        if (pastebinFiles) {
-          this.resources.workspaceFiles = pastebinFiles;
+        let files = [];
+        if (typeof code === 'string') {
+          files = await fetchFromPastebin(code);
+        } else {
+          files = 'files' in code ? code.files : code;
+        }
+        if (files) {
+          const fileList = Object.entries(files)
+            .map(([filePath, base64Content]) => {
+              try {
+                const fileContent = new Uint8Array(Buffer.from(base64Content, 'base64'));
+                return {
+                  data: fileContent,
+                  path: filePath
+                };
+              } catch (error) {
+                console.warn(`Failed to restore file ${filePath}:`, error);
+                return null;
+              }
+            })
+            .filter((item) => item !== null);
+          this.resources.workspaceFiles = fileList;
           this.markComplete('workspaceFiles');
-          return pastebinFiles;
+          return fileList;
         }
       }
 

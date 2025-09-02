@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer';
 import { FileSystemProvider } from './fs-provider/fs-provider.mts';
 import { defaultWorkspacePath } from './fs-provider/path-constants.mts';
 
@@ -55,21 +54,7 @@ export async function fetchFromPastebin(
     if (!data.files || typeof data.files !== 'object') {
       throw new Error('Invalid JSON format: missing files object');
     }
-    const fileList = Object.entries(data.files)
-      .map(([filePath, base64Content]) => {
-        try {
-          const fileContent = new Uint8Array(Buffer.from(base64Content as string, 'base64'));
-          return {
-            data: fileContent,
-            path: filePath
-          };
-        } catch (error) {
-          console.warn(`Failed to restore file ${filePath}:`, error);
-          return null;
-        }
-      })
-      .filter((item) => item !== null);
-    return fileList;
+    return data.files;
   } catch (error) {
     console.error('Error fetching from pastebin:', error);
     return null;

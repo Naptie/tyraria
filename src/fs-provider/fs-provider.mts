@@ -8,6 +8,7 @@ import { URI } from '@codingame/monaco-vscode-api/vscode/vs/base/common/uri';
 import { Buffer } from 'buffer';
 import { defaultEntryFilePath, defaultHiddenPath } from './path-constants.mts';
 import { defaultWorkspaceUri } from './uri-constants.mjs';
+import { WorkspaceData } from '../lib';
 
 export class FileSystemProvider extends InMemoryFileSystemProvider {
   protected textEncoder = new TextEncoder();
@@ -57,22 +58,18 @@ export class FileSystemProvider extends InMemoryFileSystemProvider {
     }
   }
 
-  async getAllFilesAsJSON(dirPath: string): Promise<string> {
+  async getAllFilesAsJSON(dirPath: string): Promise<WorkspaceData> {
     const files: Record<string, string> = {};
 
     try {
       await this.readDirectoryRecursively(dirPath, files);
 
-      return JSON.stringify(
-        {
-          files: files
-        },
-        null,
-        2
-      );
+      return {
+        files
+      };
     } catch (error) {
       console.error('Error reading directory files:', error);
-      return JSON.stringify({ version: '1.0', files: {} });
+      return { files: {} };
     }
   }
 
