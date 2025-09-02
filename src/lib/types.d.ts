@@ -8,8 +8,8 @@ export interface FileData {
 }
 
 export interface TyrariaEditorOptions {
-  workspaceInput: WorkspaceData['files'] | string;
-  onWorkspaceOutput: (output: WorkspaceData['files']) => void;
+  workspaceInput?: WorkspaceData['files'] | string;
+  onWorkspaceOutput?: (output: WorkspaceData['files']) => void;
 }
 
 // Type for pastebin functions
