@@ -1,5 +1,10 @@
+export interface FileContent {
+  content: string;
+  encoding: 'utf-8' | 'base64';
+}
+
 export interface WorkspaceData {
-  files: Record<string, string>; // filename -> content (base64 for binary files, plain text for text files)
+  files: Record<string, FileContent>; // filename -> file content with encoding metadata
 }
 
 export interface FileData {

@@ -2,6 +2,7 @@ import { resolve } from 'pathe';
 import { fetchFromPastebin } from './pastebin';
 import { defaultWorkspacePath } from './fs-provider/path-constants.mjs';
 import { isTextFile, isBase64, safeBase64Decode, stringToUint8Array } from './lib/file-utils.mts';
+import { Buffer } from 'buffer';
 
 class ResourceLoader {
   constructor() {
@@ -127,13 +128,27 @@ class ResourceLoader {
               try {
                 let fileContent;
 
-                // Check if this is a text file and if content appears to be Base64
-                if (isTextFile(filePath) && !isBase64(content)) {
-                  // Content is plain text for a text file
-                  fileContent = stringToUint8Array(content);
+                // Handle both new format (with encoding metadata) and legacy format (plain strings)
+                if (typeof content === 'object' && content !== null && 'content' in content && 'encoding' in content) {
+                  // New format with encoding metadata
+                  if (content.encoding === 'base64') {
+                    fileContent = new Uint8Array(Buffer.from(content.content, 'base64'));
+                  } else {
+                    // utf-8 encoding
+                    fileContent = stringToUint8Array(content.content);
+                  }
                 } else {
-                  // Content is Base64 (either for binary files or legacy text files)
-                  fileContent = safeBase64Decode(content);
+                  // Legacy format - string content, need to detect encoding
+                  const stringContent = content;
+                  
+                  // Check if this is a text file and if content appears to be Base64
+                  if (isTextFile(filePath) && !isBase64(stringContent)) {
+                    // Content is plain text for a text file
+                    fileContent = stringToUint8Array(stringContent);
+                  } else {
+                    // Content is Base64 (either for binary files or legacy text files)
+                    fileContent = safeBase64Decode(stringContent);
+                  }
                 }
 
                 return {

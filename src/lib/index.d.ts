@@ -7,4 +7,4 @@ export { default as LoadingScreen } from './LoadingScreen.svelte';
 export { uploadToPastebin, fetchFromPastebin } from '../pastebin.ts';
 
 // Export types
-export type { WorkspaceData, FileData, TyrariaEditorOptions, PastebinResponse } from './types.d.ts';
+export type { WorkspaceData, FileData, FileContent, TyrariaEditorOptions, PastebinResponse } from './types.d.ts';
