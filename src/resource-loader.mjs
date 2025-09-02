@@ -127,7 +127,7 @@ class ResourceLoader {
             .map(([filePath, content]) => {
               try {
                 let fileContent;
-                
+
                 // Check if this is a text file and if content appears to be Base64
                 if (isTextFile(filePath) && !isBase64(content)) {
                   // Content is plain text for a text file
@@ -136,7 +136,7 @@ class ResourceLoader {
                   // Content is Base64 (either for binary files or legacy text files)
                   fileContent = safeBase64Decode(content);
                 }
-                
+
                 return {
                   data: fileContent,
                   path: filePath

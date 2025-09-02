@@ -9,7 +9,13 @@ import { Buffer } from 'buffer';
 import { defaultEntryFilePath, defaultHiddenPath } from './path-constants.mts';
 import { defaultWorkspaceUri } from './uri-constants.mjs';
 import { WorkspaceData } from '../lib';
-import { isTextFile, isBase64, safeBase64Decode, uint8ArrayToString, stringToUint8Array } from '../lib/file-utils.mts';
+import {
+  isTextFile,
+  isBase64,
+  safeBase64Decode,
+  uint8ArrayToString,
+  stringToUint8Array
+} from '../lib/file-utils.mts';
 
 export class FileSystemProvider extends InMemoryFileSystemProvider {
   protected textEncoder = new TextEncoder();
@@ -89,7 +95,7 @@ export class FileSystemProvider extends InMemoryFileSystemProvider {
         if (type === FileType.File) {
           try {
             const fileContent = await this.readFile(fileUri);
-            
+
             // Check if this is a text file based on extension
             if (isTextFile(fullPath)) {
               // Store text files as plain text (UTF-8)
@@ -125,7 +131,7 @@ export class FileSystemProvider extends InMemoryFileSystemProvider {
       for (const [filePath, content] of Object.entries(data.files)) {
         try {
           let fileContent: Uint8Array;
-          
+
           // Check if this is a text file and if content appears to be Base64
           if (isTextFile(filePath) && !isBase64(content as string)) {
             // Content is plain text for a text file
@@ -134,7 +140,7 @@ export class FileSystemProvider extends InMemoryFileSystemProvider {
             // Content is Base64 (either for binary files or legacy text files)
             fileContent = safeBase64Decode(content as string);
           }
-          
+
           await this.addFileToWorkspace(filePath, new Uint8Array(fileContent), true);
         } catch (error) {
           console.warn(`Failed to restore file ${filePath}:`, error);

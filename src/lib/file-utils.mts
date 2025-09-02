@@ -5,15 +5,116 @@ import { Buffer } from 'buffer';
 
 // Common text file extensions
 const TEXT_FILE_EXTENSIONS = new Set([
-  '.txt', '.md', '.typ', '.js', '.ts', '.jsx', '.tsx', '.json', '.html', '.htm', '.css', '.scss', '.sass', '.less',
-  '.svg', '.xml', '.yaml', '.yml', '.toml', '.ini', '.py', '.rs', '.go', '.c', '.cpp', '.h', '.hpp', '.java', '.kt',
-  '.swift', '.rb', '.php', '.sh', '.bat', '.ps1', '.sql', '.r', '.scala', '.clj', '.hs', '.elm', '.dart', '.vue',
-  '.astro', '.svelte', '.lua', '.pl', '.tcl', '.vim', '.emacs', '.gitignore', '.gitattributes', '.editorconfig',
-  '.dockerfile', '.makefile', '.cmake', '.gradle', '.properties', '.conf', '.cfg', '.log', '.tex', '.bib',
-  '.csv', '.tsv', '.jsonl', '.ndjson', '.graphql', '.gql', '.proto', '.thrift', '.avsc', '.schema', '.xsd',
-  '.rdf', '.ttl', '.n3', '.nt', '.nq', '.trig', '.sparql', '.owl', '.jsonld', '.mustache', '.hbs', '.handlebars',
-  '.jinja', '.j2', '.twig', '.liquid', '.ftl', '.vm', '.erb', '.asp', '.aspx', '.jsp', '.jspx', '.cshtml',
-  '.vbhtml', '.razor', '.blade', '.tpl', '.smarty', '.pug', '.jade', '.slim', '.haml', '.ejs', '.eta', '.nunjucks'
+  '.txt',
+  '.md',
+  '.typ',
+  '.js',
+  '.ts',
+  '.jsx',
+  '.tsx',
+  '.json',
+  '.html',
+  '.htm',
+  '.css',
+  '.scss',
+  '.sass',
+  '.less',
+  '.svg',
+  '.xml',
+  '.yaml',
+  '.yml',
+  '.toml',
+  '.ini',
+  '.py',
+  '.rs',
+  '.go',
+  '.c',
+  '.cpp',
+  '.h',
+  '.hpp',
+  '.java',
+  '.kt',
+  '.swift',
+  '.rb',
+  '.php',
+  '.sh',
+  '.bat',
+  '.ps1',
+  '.sql',
+  '.r',
+  '.scala',
+  '.clj',
+  '.hs',
+  '.elm',
+  '.dart',
+  '.vue',
+  '.astro',
+  '.svelte',
+  '.lua',
+  '.pl',
+  '.tcl',
+  '.vim',
+  '.emacs',
+  '.gitignore',
+  '.gitattributes',
+  '.editorconfig',
+  '.dockerfile',
+  '.makefile',
+  '.cmake',
+  '.gradle',
+  '.properties',
+  '.conf',
+  '.cfg',
+  '.log',
+  '.tex',
+  '.bib',
+  '.csv',
+  '.tsv',
+  '.jsonl',
+  '.ndjson',
+  '.graphql',
+  '.gql',
+  '.proto',
+  '.thrift',
+  '.avsc',
+  '.schema',
+  '.xsd',
+  '.rdf',
+  '.ttl',
+  '.n3',
+  '.nt',
+  '.nq',
+  '.trig',
+  '.sparql',
+  '.owl',
+  '.jsonld',
+  '.mustache',
+  '.hbs',
+  '.handlebars',
+  '.jinja',
+  '.j2',
+  '.twig',
+  '.liquid',
+  '.ftl',
+  '.vm',
+  '.erb',
+  '.asp',
+  '.aspx',
+  '.jsp',
+  '.jspx',
+  '.cshtml',
+  '.vbhtml',
+  '.razor',
+  '.blade',
+  '.tpl',
+  '.smarty',
+  '.pug',
+  '.jade',
+  '.slim',
+  '.haml',
+  '.ejs',
+  '.eta',
+  '.nunjucks'
 ]);
 
 /**
@@ -30,11 +131,11 @@ export function isTextFile(filePath: string): boolean {
 function getFileExtension(filePath: string): string {
   const lastDot = filePath.lastIndexOf('.');
   const lastSlash = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
-  
+
   if (lastDot === -1 || lastDot < lastSlash) {
     return '';
   }
-  
+
   return filePath.substring(lastDot).toLowerCase();
 }
 
@@ -42,6 +143,11 @@ function getFileExtension(filePath: string): string {
  * Check if content appears to be Base64 encoded
  */
 export function isBase64(content: string): boolean {
+  // Empty content is not base64
+  if (!content || content.length === 0) {
+    return false;
+  }
+  
   // Base64 regex pattern
   const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
   
@@ -50,14 +156,38 @@ export function isBase64(content: string): boolean {
     return false;
   }
   
-  // Try to decode and see if it contains reasonable content
+  // If it's a very short string that could be plain text, be more careful
+  if (content.length <= 4) {
+    // Very short strings like "test" should not be considered base64
+    return false;
+  }
+  
+  // Try to decode and check if the result makes sense
   try {
-    Buffer.from(content, 'base64').toString('utf-8');
-    // If decoded content contains mostly printable characters or is empty, it might be Base64
-    // But if original content looks like readable text, it's probably not Base64
+    const decoded = Buffer.from(content, 'base64').toString('utf-8');
     
-    // If the content is short and looks like regular text, it's probably not Base64
-    if (content.length < 100 && /^[a-zA-Z0-9\s.,!?'"()-]*$/.test(content)) {
+    // If the decoded content is much shorter than the original (base64 inflation),
+    // and the original looks like valid base64, then it's probably base64
+    const compressionRatio = decoded.length / content.length;
+    
+    // Base64 encoding typically results in ~33% size increase (4/3 ratio)
+    // So decoded should be smaller than original
+    if (compressionRatio > 1.0) {
+      return false; // Decoded is larger than original, probably not base64
+    }
+    
+    // Additional heuristic: if the content has good base64 characteristics
+    // (includes both upper/lower case and numbers), it's likely base64
+    const hasUpperCase = /[A-Z]/.test(content);
+    const hasLowerCase = /[a-z]/.test(content);
+    const hasNumbers = /[0-9]/.test(content);
+    
+    if (hasUpperCase && hasLowerCase && hasNumbers && content.length >= 8) {
+      return true;
+    }
+    
+    // For shorter strings, be more conservative
+    if (content.length < 16) {
       return false;
     }
     
@@ -79,7 +209,7 @@ export function safeBase64Decode(content: string): Uint8Array {
       // Treat as UTF-8 text
       return new Uint8Array(Buffer.from(content, 'utf-8'));
     }
-  } catch (error) {
+  } catch {
     // If decoding fails, treat as UTF-8 text
     return new Uint8Array(Buffer.from(content, 'utf-8'));
   }
