@@ -114,7 +114,12 @@ class ResourceLoader {
         if (typeof code === 'string') {
           files = await fetchFromPastebin(code);
         } else {
-          files = 'files' in code ? code.files : code;
+          files = Object.fromEntries(
+            Object.entries('files' in code ? code.files : code).map(([key, value]) => [
+              resolve(defaultWorkspacePath, key),
+              value
+            ])
+          );
         }
         if (files) {
           const fileList = Object.entries(files)
