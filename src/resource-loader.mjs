@@ -116,7 +116,7 @@ class ResourceLoader {
         } else {
           files = Object.fromEntries(
             Object.entries('files' in code ? code.files : code).map(([key, value]) => [
-              resolve(defaultWorkspacePath, key),
+              resolve(defaultWorkspacePath, key.startsWith('/') ? key.substring(1) : key),
               value
             ])
           );
