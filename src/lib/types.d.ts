@@ -1,10 +1,15 @@
+export interface FileContent {
+  content: string;
+  encoding: 'utf-8' | 'base64';
+}
+
 export interface WorkspaceData {
-  files: Record<string, string>; // filename -> base64 content
+  files: Record<string, FileContent>; // filename -> file content with encoding metadata
 }
 
 export interface FileData {
   path: string;
-  content: string; // base64 encoded
+  content: string; // base64 encoded for binary files, plain text for text files
 }
 
 export interface TyrariaEditorOptions {

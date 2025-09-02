@@ -16,7 +16,7 @@ export async function uploadToPastebin(fs: FileSystemProvider): Promise<string |
       return null;
     }
     const formData = new FormData();
-    formData.append('c', content);
+    formData.append('c', JSON.stringify(content));
     const response = await fetch(PASTEBIN_API, {
       method: 'POST',
       body: formData

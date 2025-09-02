@@ -8,7 +8,14 @@ import { URI } from '@codingame/monaco-vscode-api/vscode/vs/base/common/uri';
 import { Buffer } from 'buffer';
 import { defaultEntryFilePath, defaultHiddenPath } from './path-constants.mts';
 import { defaultWorkspaceUri } from './uri-constants.mjs';
-import { WorkspaceData } from '../lib';
+import { WorkspaceData, FileContent } from '../lib';
+import {
+  isTextFile,
+  isBase64,
+  safeBase64Decode,
+  uint8ArrayToString,
+  stringToUint8Array
+} from '../lib/file-utils.mts';
 
 export class FileSystemProvider extends InMemoryFileSystemProvider {
   protected textEncoder = new TextEncoder();
@@ -59,7 +66,7 @@ export class FileSystemProvider extends InMemoryFileSystemProvider {
   }
 
   async getAllFilesAsJSON(dirPath: string): Promise<WorkspaceData> {
-    const files: Record<string, string> = {};
+    const files: Record<string, FileContent> = {};
 
     try {
       await this.readDirectoryRecursively(dirPath, files);
@@ -75,7 +82,7 @@ export class FileSystemProvider extends InMemoryFileSystemProvider {
 
   private async readDirectoryRecursively(
     dirPath: string,
-    files: Record<string, string>
+    files: Record<string, FileContent>
   ): Promise<void> {
     try {
       const uri = URI.file(dirPath);
@@ -88,8 +95,23 @@ export class FileSystemProvider extends InMemoryFileSystemProvider {
         if (type === FileType.File) {
           try {
             const fileContent = await this.readFile(fileUri);
-            const base64Content = Buffer.from(fileContent).toString('base64');
-            files[fullPath] = base64Content;
+
+            // Check if this is a text file based on extension
+            if (isTextFile(fullPath)) {
+              // Store text files as plain text (UTF-8) with encoding metadata
+              const textContent = uint8ArrayToString(fileContent);
+              files[fullPath] = {
+                content: textContent,
+                encoding: 'utf-8'
+              };
+            } else {
+              // Store binary files as Base64 with encoding metadata
+              const base64Content = Buffer.from(fileContent).toString('base64');
+              files[fullPath] = {
+                content: base64Content,
+                encoding: 'base64'
+              };
+            }
           } catch (error) {
             console.warn(`Failed to read file ${fullPath}:`, error);
           }
@@ -112,10 +134,35 @@ export class FileSystemProvider extends InMemoryFileSystemProvider {
       if (!data.files || typeof data.files !== 'object') {
         throw new Error('Invalid JSON format: missing files object');
       }
-      for (const [filePath, base64Content] of Object.entries(data.files)) {
+      for (const [filePath, content] of Object.entries(data.files)) {
         try {
-          const fileContent = new Uint8Array(Buffer.from(base64Content as string, 'base64'));
-          await this.addFileToWorkspace(filePath, fileContent, true);
+          let fileContent: Uint8Array;
+
+          // Handle both new format (with encoding metadata) and legacy format (plain strings)
+          if (typeof content === 'object' && content !== null && 'content' in content && 'encoding' in content) {
+            // New format with encoding metadata
+            const fileContentWithEncoding = content as FileContent;
+            if (fileContentWithEncoding.encoding === 'base64') {
+              fileContent = new Uint8Array(Buffer.from(fileContentWithEncoding.content, 'base64'));
+            } else {
+              // utf-8 encoding
+              fileContent = stringToUint8Array(fileContentWithEncoding.content);
+            }
+          } else {
+            // Legacy format - string content, need to detect encoding
+            const stringContent = content as string;
+            
+            // Check if this is a text file and if content appears to be Base64
+            if (isTextFile(filePath) && !isBase64(stringContent)) {
+              // Content is plain text for a text file
+              fileContent = stringToUint8Array(stringContent);
+            } else {
+              // Content is Base64 (either for binary files or legacy text files)
+              fileContent = safeBase64Decode(stringContent);
+            }
+          }
+
+          await this.addFileToWorkspace(filePath, new Uint8Array(fileContent), true);
         } catch (error) {
           console.warn(`Failed to restore file ${filePath}:`, error);
         }
