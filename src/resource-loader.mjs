@@ -2,6 +2,7 @@ import { resolve } from 'pathe';
 import { Buffer } from 'buffer';
 import { fetchFromPastebin } from './pastebin';
 import { defaultWorkspacePath } from './fs-provider/path-constants.mjs';
+import { isTextFile, isBase64, safeBase64Decode, stringToUint8Array } from './lib/file-utils.mts';
 
 class ResourceLoader {
   constructor() {
@@ -123,9 +124,19 @@ class ResourceLoader {
         }
         if (files) {
           const fileList = Object.entries(files)
-            .map(([filePath, base64Content]) => {
+            .map(([filePath, content]) => {
               try {
-                const fileContent = new Uint8Array(Buffer.from(base64Content, 'base64'));
+                let fileContent;
+                
+                // Check if this is a text file and if content appears to be Base64
+                if (isTextFile(filePath) && !isBase64(content)) {
+                  // Content is plain text for a text file
+                  fileContent = stringToUint8Array(content);
+                } else {
+                  // Content is Base64 (either for binary files or legacy text files)
+                  fileContent = safeBase64Decode(content);
+                }
+                
                 return {
                   data: fileContent,
                   path: filePath
