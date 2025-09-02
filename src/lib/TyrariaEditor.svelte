@@ -496,15 +496,15 @@
     border: 1px solid var(--vscode-panel-border);
   }
 
-  .bg-surface {
+  :global(.bg-surface) {
     background-color: var(--vscode-editor-background);
   }
 
-  .text-main {
+  :global(.text-main) {
     color: var(--vscode-foreground);
   }
 
-  .menu-btn-icon {
+  :global(.menu-btn-icon) {
     @apply mx-3 my-1 text-lg;
   }
 
