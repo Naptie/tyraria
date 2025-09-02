@@ -126,13 +126,13 @@
     exportButtonText = 'Exporting...';
 
     const workspaceJSON = await fileSystemProvider.getAllFilesAsJSON(defaultWorkspacePath);
-    const outputJSON = {};
-    for (const [key, value] of Object.entries(workspaceJSON)) {
-      outputJSON[
+    const files = {};
+    for (const [key, value] of Object.entries(workspaceJSON.files)) {
+      files[
         key.startsWith(defaultWorkspacePath) ? key.substring(defaultWorkspacePath.length) : key
       ] = value;
     }
-    onWorkspaceOutput(outputJSON);
+    onWorkspaceOutput({ files });
 
     exportButtonText = 'Success!';
     setTimeout(() => {
