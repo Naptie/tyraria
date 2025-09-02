@@ -1,5 +1,4 @@
 import { resolve } from 'pathe';
-import { Buffer } from 'buffer';
 import { fetchFromPastebin } from './pastebin';
 import { defaultWorkspacePath } from './fs-provider/path-constants.mjs';
 import { isTextFile, isBase64, safeBase64Decode, stringToUint8Array } from './lib/file-utils.mts';
