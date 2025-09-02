@@ -5,7 +5,7 @@ import {
 } from 'vscode-languageserver/browser';
 import { InitializeRequest } from 'vscode-languageserver';
 import init, { TinymistLanguageServer } from 'tinymist';
-import { defaultPackagePath } from '@/fs-provider/path-constants.mjs';
+import { defaultPackagePath } from '../fs-provider/path-constants.mjs';
 
 function sendWorkerMessage(type, content) {
   self.postMessage({
@@ -80,7 +80,7 @@ class TinymistServer {
 
   initializePackageRegistry() {
     this.resolvePackage = (spec) => {
-      console.log("resolving package", spec);
+      console.log('resolving package', spec);
       const packageRoot = `${defaultPackagePath}/${spec.namespace}/${spec.name}/${spec.version}`;
       const url = `https://packages.typst.org/${spec.namespace}/${spec.name}-${spec.version}.tar.gz`;
 
