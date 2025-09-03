@@ -503,7 +503,8 @@
 
   .bg-base {
     background-color: var(--vscode-panel-background);
-    border: 1px solid var(--vscode-panel-border);
+    border-color: var(--vscode-panel-border);
+    @apply border-x-0;
   }
 
   :global(.bg-surface) {
