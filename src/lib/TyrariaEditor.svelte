@@ -38,7 +38,7 @@
   import { AutoSaveConfiguration } from '@codingame/monaco-vscode-api/vscode/vs/platform/files/common/files';
 
   // Component props using Svelte 5 runes syntax
-  let { workspaceInput = null, onWorkspaceOutput = () => {} } = $props();
+  let { workspaceInput = null, onWorkspaceOutput = () => {}, enableShare = true } = $props();
 
   let isMobile = $state(false);
   let isSidebarOpen = $state(true);
@@ -142,6 +142,7 @@
   }
 
   async function share() {
+    if (!enableShare) return;
     isSharing = true;
     shareButtonText = 'Sharing...';
 
@@ -431,20 +432,22 @@
             <span class="mx-3 my-1">{exportButtonText}</span>
           {/if}
         </button>
-        <button
-          class="vscode-action-button my-2"
-          title="Share workspace"
-          class:opacity-50={isSharing}
-          class:cursor-not-allowed={isSharing}
-          disabled={isSharing}
-          onclick={handleShareClicked}
-        >
-          {#if !shareButtonText}
-            <Icon icon="heroicons:share" class="menu-btn-icon" />
-          {:else}
-            <span class="mx-3 my-1">{shareButtonText}</span>
-          {/if}
-        </button>
+        {#if enableShare}
+          <button
+            class="vscode-action-button my-2"
+            title="Share workspace"
+            class:opacity-50={isSharing}
+            class:cursor-not-allowed={isSharing}
+            disabled={isSharing}
+            onclick={handleShareClicked}
+          >
+            {#if !shareButtonText}
+              <Icon icon="heroicons:share" class="menu-btn-icon" />
+            {:else}
+              <span class="mx-3 my-1">{shareButtonText}</span>
+            {/if}
+          </button>
+        {/if}
       </div>
     </div>
     <div class="min-h-0 flex-1">

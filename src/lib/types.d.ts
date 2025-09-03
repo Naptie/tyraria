@@ -15,6 +15,7 @@ export interface FileData {
 export interface TyrariaEditorOptions {
   workspaceInput?: WorkspaceData['files'] | string;
   onWorkspaceOutput?: (output: WorkspaceData['files']) => void;
+  enableShare?: boolean;
 }
 
 // Type for pastebin functions
