@@ -368,6 +368,8 @@
     worker = new TinymistLS();
     worker.startWorker();
 
+    let disposeOnDidSaveTextDocument;
+
     const init = async () => {
       try {
         // Use workspaceInput if provided as a code parameter
@@ -375,6 +377,8 @@
         await resourceLoader.loadAll(worker, code);
         resourcesLoaded = true;
         await startTinymistClient();
+        const { dispose } = vscode.workspace.onDidSaveTextDocument(exportWorkspace);
+        disposeOnDidSaveTextDocument = dispose;
       } catch (error) {
         console.error('Failed to load resources:', error);
       }
@@ -382,13 +386,12 @@
 
     init();
 
-    const { dispose: disposeOnDidSaveTextDocument } =
-      vscode.workspace.onDidSaveTextDocument(exportWorkspace);
-
     return () => {
       window.removeEventListener('resize', checkMobile);
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      disposeOnDidSaveTextDocument();
+      if (disposeOnDidSaveTextDocument) {
+        disposeOnDidSaveTextDocument();
+      }
       if (wrapper) {
         wrapper.dispose();
       }
