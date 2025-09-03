@@ -382,9 +382,13 @@
 
     init();
 
+    const { dispose: disposeOnDidSaveTextDocument } =
+      vscode.workspace.onDidSaveTextDocument(exportWorkspace);
+
     return () => {
       window.removeEventListener('resize', checkMobile);
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      disposeOnDidSaveTextDocument();
       if (wrapper) {
         wrapper.dispose();
       }
