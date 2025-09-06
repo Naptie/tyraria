@@ -1,8 +1,8 @@
-// from myriad-dreamin/typst/tools/typst-dom
+// from myriad-dreamin/typst/tools/typst-dom, licensed under Apache 2.0
+// originally from enter-tainer/typst-preview/addons/typst-dom, licensed under MIT
 
 export * from './typst-doc.mjs';
 import { provideSvgDoc } from './typst-doc.svg.mjs';
-import { provideCanvasDoc } from './typst-doc.canvas.mjs';
 import { TypstDocumentContext, composeDoc, provideDoc } from './typst-doc.mjs';
 
 // export class TypstDocument extends provideDoc(
@@ -22,6 +22,4 @@ import { TypstDocumentContext, composeDoc, provideDoc } from './typst-doc.mjs';
  *   )
  * ) {}
  */
-export class TypstDocument extends provideDoc(
-  composeDoc(TypstDocumentContext, provideCanvasDoc, provideSvgDoc)
-) {}
+export class TypstDocument extends provideDoc(composeDoc(TypstDocumentContext, provideSvgDoc)) {}

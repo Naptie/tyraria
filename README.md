@@ -15,14 +15,14 @@ Try it now: https://tyraria.typst.dev/
 </script>
 
 <TyrariaEditor
-  workspaceInput={{ '/main.typ': 'SGVsbG8gd29ybGQh' }}
+  workspaceInput={{ '/main.typ': { content: 'Hello world!', encoding: 'utf-8' } }}
   onWorkspaceOutput={({ files }) => {
     console.log('Received workspace files:', files);
   }}
 />;
 ```
 
-## Current Status:
+## TODO
 
 - [x] Monaco Editor basic editing functionality
 - [x] tinymist LSP language service
@@ -30,8 +30,8 @@ Try it now: https://tyraria.typst.dev/
 - [x] typst-preview componentization
 - [ ] Load fonts from workspace
 - [ ] Optimize startup speed
-- [ ] Clean up redundant logs
-- [ ] Eliminate tinymist compilation warnings
+- [x] Clean up redundant logs
+- [x] Eliminate tinymist compilation warnings
 - [ ] Merge changes into tinymist mainline
 - [ ] Automated build
 - [x] Save workspace to pastebin and load workspace from pastebin
@@ -60,6 +60,16 @@ yarn link tinymist
 yarn build
 ```
 
+## Acknowledgements
+
+- [Tinymist](https://github.com/Myriad-Dreamin/tinymist): Tinymist provides typst language services
+- [typst.ts](https://github.com/Myriad-Dreamin/typst.ts): typst.ts provides incremental SVG rendering
+- [typst-preview](https://github.com/Enter-tainer/typst-preview): The live preview feature of tinymist originally derived from typst-preview
+
 ## License
 
 This project is licensed under GPLv3.
+
+## Legal
+
+This project is not affiliated with, created by, or endorsed by Typst the brand.

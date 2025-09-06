@@ -61,6 +61,8 @@
   let wrapper = null;
   let fileSystemProvider = null;
 
+  let isWorkspaceChanged = $state(false);
+
   const toggleSidebar = () => {
     isSidebarOpen = !isSidebarOpen;
   };
@@ -85,10 +87,14 @@
     preview.initPreview(defaultEntryFilePath);
   }
 
+  function isDirty() {
+    return vscode.window.tabGroups.all.some((group) => group.tabs.some((tab) => tab.isDirty));
+  }
+
   async function handleExportClicked() {
     if (isExporting) return;
     try {
-      if (vscode.window.tabGroups.all.some((group) => group.tabs.some((tab) => tab.isDirty))) {
+      if (isDirty()) {
         await vscode.commands.executeCommand('workbench.action.files.saveAll');
       }
 
@@ -106,7 +112,7 @@
   async function handleShareClicked() {
     if (isSharing) return;
     try {
-      if (vscode.window.tabGroups.all.some((group) => group.tabs.some((tab) => tab.isDirty))) {
+      if (isDirty()) {
         await vscode.commands.executeCommand('workbench.action.files.saveAll');
       }
 
@@ -346,6 +352,8 @@
     await worker.initWatcher();
 
     let defaultDocument = await loadWorkspace(fileSystemProvider);
+    initWorkspaceChangesListener();
+
     await vscode.window.showTextDocument(defaultDocument, {
       preserveFocus: true
     });
@@ -354,9 +362,29 @@
   }
 
   function handleBeforeUnload(event) {
-    event.preventDefault();
-    event.returnValue = '';
-    return "Are you sure to leave? You changes won't be saved.";
+    console.warn('isDirty', isDirty(), 'isChanged', isWorkspaceChanged);
+    if (isDirty() || isWorkspaceChanged) {
+      event.preventDefault();
+      event.returnValue = '';
+      return "Are you sure to leave? You changes won't be saved.";
+    }
+  }
+
+  function initWorkspaceChangesListener() {
+    let disposables = [];
+    const eventTypes = [
+      vscode.workspace.onDidChangeWorkspaceFolders,
+      vscode.workspace.onDidCreateFiles,
+      vscode.workspace.onDidDeleteFiles,
+      vscode.workspace.onDidRenameFiles,
+      vscode.workspace.onDidSaveTextDocument
+    ];
+    disposables = eventTypes.map((eventType) =>
+      eventType(() => {
+        isWorkspaceChanged = true;
+        disposables.forEach((disposable) => disposable.dispose());
+      })
+    );
   }
 
   // Initialize the component

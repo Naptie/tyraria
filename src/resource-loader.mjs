@@ -207,7 +207,6 @@ class ResourceLoader {
   }
 
   getFonts() {
-    console.log(this);
     return this.resources.fonts;
   }
 
