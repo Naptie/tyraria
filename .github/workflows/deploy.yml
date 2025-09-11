@@ -42,7 +42,7 @@ jobs:
       - name: Build project
         run: |
           yarn link tinymist
-          yarn build
+          BUILD_PATH=/tyraria yarn build
 
       - name: Deploy to Vercel
         env:
