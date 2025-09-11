@@ -36,7 +36,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd ../../../tyraria
+          cd ../../../../tyraria
           yarn
 
       - name: Build project
