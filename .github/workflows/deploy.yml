@@ -1,0 +1,52 @@
+name: Deploy
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  deploy-vercel:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install wasm-pack
+        run: cargo install wasm-pack
+
+      - name: Set up Tinymist
+        run: |
+          cd ..
+          git clone -b tinymist-wasm https://github.com/ParaN3xus/tinymist.git
+          cd tinymist/crates/tinymist
+          yarn
+          yarn build
+          cd pkg
+          yarn link
+
+      - name: Install dependencies
+        run: |
+          cd ../../../tyraria
+          yarn
+
+      - name: Build project
+        run: |
+          yarn link tinymist
+          yarn build
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel --prod --confirm --token $VERCEL_TOKEN --org $VERCEL_ORG_ID --project $VERCEL_PROJECT_ID
